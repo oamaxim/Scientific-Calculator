@@ -84,6 +84,11 @@ std::vector<Token> Lexer::tokenise()
             tokens.push_back({TokenType::CARET});
             break;
 
+        case ',':
+            tokens.push_back({TokenType::COMMA});
+            break;
+
+
         default:
             throw std::runtime_error("Invalid character");
             break;
