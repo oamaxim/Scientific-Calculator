@@ -1,7 +1,8 @@
 #pragma once
 #include <string>
 
-enum class TokenType {
+enum class TokenType
+{
     NUMBER,
     PLUS,
     MINUS,
@@ -12,7 +13,8 @@ enum class TokenType {
     END
 };
 
-struct Token {
+struct Token
+{
     TokenType type;
     double value = 0;
 };
