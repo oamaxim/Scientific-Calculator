@@ -2,6 +2,7 @@
 #include "../parser/AST.h"
 #include <stdexcept>
 #include <cmath>
+#include <vector>
 
 double Evaluator::evaluate(ASTNode *node)
 {
@@ -48,6 +49,19 @@ double Evaluator::evaluate(ASTNode *node)
         case '^':
             return std::pow(left, right);
         }
+    }
+
+    if (auto func = dynamic_cast<FunctionNode*>(node)){
+        std::vector<double> values;
+        for(auto& arg : func->args){
+            values.push_back(evaluate(arg.get()));
+        }
+        if (func->name == "sin") return std::sin(values[0]);
+        if (func->name == "cos") return std::cos(values[0]);
+        if (func->name == "tan") return std::tan(values[0]);
+        if (func->name == "sqrt") return std::sqrt(values[0]);
+
+        throw std::runtime_error("Unkwon function: " + func->name);
     }
 
     throw std::runtime_error("Unknown AST node");
