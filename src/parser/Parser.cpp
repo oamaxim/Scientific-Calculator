@@ -65,15 +65,15 @@ std::unique_ptr<ASTNode> Parser::power()
 {
     auto left = factor();
 
-    if (peek().type == TokenType::CARET){
+    if (peek().type == TokenType::CARET)
+    {
         get();
         auto right = power();
 
         return std::make_unique<BinaryNode>(
             '^',
             std::move(left),
-            std::move(right)
-        );
+            std::move(right));
     }
 
     return left;
@@ -86,7 +86,30 @@ std::unique_ptr<ASTNode> Parser::factor()
         return std::make_unique<NumberNode>(t.value);
 
     if (t.type == TokenType::INDENT)
+    {
+
+        // Function call
+        if (peek().type == TokenType::LPAREN)
+        {
+            get();
+
+            std::vector<std::unique_ptr<ASTNode>> args;
+            if (peek().type != TokenType::RPAREN)
+            {
+                args.push_back(expression());
+                while (peek().type == TokenType::COMMA)
+                {
+                    get();
+                    args.push_back(expression());
+                }
+            }
+            get();
+            return std::make_unique<FunctionNode>(t.name, std::move(args));
+        }
+
+        // Variable
         return std::make_unique<VariableNode>(t.name);
+    }
 
     if (t.type == TokenType::LPAREN)
     {

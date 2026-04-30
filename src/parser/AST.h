@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <vector>
 
 enum class NodeType
 {
@@ -47,4 +48,14 @@ struct AssignNode : ASTNode
 
     AssignNode(const std::string &n, std::unique_ptr<ASTNode> v)
         : name(n), value(std::move(v)) {}
+};
+
+struct FunctionNode : ASTNode
+{
+    std::string name;
+    std::vector<std::unique_ptr<ASTNode>> args;
+
+    FunctionNode(const std::string &n,
+                 std::vector<std::unique_ptr<ASTNode>> a)
+        : name(std::move(n)), args(std::move(a)) {}
 };
