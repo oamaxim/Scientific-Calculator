@@ -44,18 +44,36 @@ std::unique_ptr<ASTNode> Parser::expression()
 
 std::unique_ptr<ASTNode> Parser::term()
 {
-    auto left = factor();
+    auto left = power();
 
     while (peek().type == TokenType::STAR ||
            peek().type == TokenType::SLASH)
     {
         char op = get().type == TokenType::STAR ? '*' : '/';
-        auto right = factor();
+        auto right = power();
 
         left = std::make_unique<BinaryNode>(
             op,
             std::move(left),
             std::move(right));
+    }
+
+    return left;
+}
+
+std::unique_ptr<ASTNode> Parser::power()
+{
+    auto left = factor();
+
+    if (peek().type == TokenType::CARET){
+        get();
+        auto right = power();
+
+        return std::make_unique<BinaryNode>(
+            '^',
+            std::move(left),
+            std::move(right)
+        );
     }
 
     return left;
