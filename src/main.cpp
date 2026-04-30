@@ -1,6 +1,7 @@
 #include <iostream>
 #include "lexer/Lexer.h"
 #include "parser/Parser.h"
+#include "evaluator/Evaluator.h"
 
 int main()
 {
@@ -20,7 +21,10 @@ int main()
             std::vector<Token> tokens = lexer.tokenise();
 
             Parser parser(tokens);
-            double result = parser.parse();
+            std::unique_ptr<ASTNode> node = parser.parse();
+
+            Evaluator evaluator;
+            double result = evaluator.evaluate(node.get());
 
             std::cout << "= " << result << std::endl;
         }
