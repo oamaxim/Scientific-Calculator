@@ -67,6 +67,9 @@ std::unique_ptr<ASTNode> Parser::factor()
     if (t.type == TokenType::NUMBER)
         return std::make_unique<NumberNode>(t.value);
 
+    if (t.type == TokenType::INDENT)
+        return std::make_unique<VariableNode>(t.name);
+
     if (t.type == TokenType::LPAREN)
     {
         auto node = expression();
@@ -79,5 +82,14 @@ std::unique_ptr<ASTNode> Parser::factor()
 
 std::unique_ptr<ASTNode> Parser::parse()
 {
+    if (peek().type == TokenType::INDENT &&
+        tokens[pos + 1].type == TokenType::ASSIGN)
+    {
+        std::string name = get().name;
+        get();
+
+        auto value = expression();
+        return std::make_unique<AssignNode>(name, std::move(value));
+    }
     return expression();
 }
