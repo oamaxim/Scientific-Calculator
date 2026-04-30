@@ -13,65 +13,71 @@ Token Parser::get()
     return tokens.at(pos++);
 }
 
-bool Parser::match(TokenType type)
+// bool Parser::match(TokenType type)
+// {
+//     if (peek().type == type)
+//     {
+//         get();
+//         return true;
+//     }
+//     return false;
+// }
+
+std::unique_ptr<ASTNode> Parser::expression()
 {
-    if (peek().type == type)
+    auto left = term();
+
+    while (peek().type == TokenType::PLUS ||
+           peek().type == TokenType::MINUS)
     {
-        get();
-        return true;
+        char op = get().type == TokenType::PLUS ? '+' : '-';
+        auto right = term();
+
+        left = std::make_unique<BinaryNode>(
+            op,
+            std::move(left),
+            std::move(right));
     }
-    return false;
+
+    return left;
 }
 
-double Parser::expression()
+std::unique_ptr<ASTNode> Parser::term()
 {
-    double result = term();
-    while (peek().type == TokenType::PLUS || peek().type == TokenType::MINUS)
-    {
-        Token op = get();
-        double right = term();
+    auto left = factor();
 
-        if (op.type == TokenType::PLUS)
-            result += right;
-        else
-            result -= right;
+    while (peek().type == TokenType::STAR ||
+           peek().type == TokenType::SLASH)
+    {
+        char op = get().type == TokenType::STAR ? '*' : '/';
+        auto right = factor();
+
+        left = std::make_unique<BinaryNode>(
+            op,
+            std::move(left),
+            std::move(right));
     }
-    return result;
+
+    return left;
 }
 
-double Parser::term()
-{
-    double result = factor();
-    while (peek().type == TokenType::STAR || peek().type == TokenType::SLASH)
-    {
-        Token op = get();
-        double right = term();
-
-        if (op.type == TokenType::STAR)
-            result *= right;
-        else
-            result /= right;
-    }
-    return result;
-}
-
-double Parser::factor()
+std::unique_ptr<ASTNode> Parser::factor()
 {
     Token t = get();
     if (t.type == TokenType::NUMBER)
-        return t.value;
+        return std::make_unique<NumberNode>(t.value);
 
     if (t.type == TokenType::LPAREN)
     {
-        double result = expression();
+        auto node = expression();
         get();
-        return result;
+        return node;
     }
 
-    throw std::runtime_error("Unexpected token");
+    throw std::runtime_error("Invalid Expression");
 }
 
-double Parser::parse()
+std::unique_ptr<ASTNode> Parser::parse()
 {
     return expression();
 }

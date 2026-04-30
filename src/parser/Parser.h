@@ -1,23 +1,25 @@
 #pragma once
 #include <vector>
+#include <memory>
 #include "../types/Token.h"
+#include "AST.h"
 
 class Parser
 {
-    private:
+private:
     std::vector<Token> tokens;
     size_t pos;
 
-    public:
-    Parser(const std::vector<Token>& tokens);
-    double parse();
+public:
+    Parser(const std::vector<Token> &tokens);
+    std::unique_ptr<ASTNode> parse();
 
-    private:
-    double expression();
-    double term();
-    double factor();
+private:
+    std::unique_ptr<ASTNode> expression();
+    std::unique_ptr<ASTNode> term();
+    std::unique_ptr<ASTNode> factor();
 
     Token peek();
     Token get();
-    bool match(TokenType type);
+    // bool match(TokenType type);
 };
