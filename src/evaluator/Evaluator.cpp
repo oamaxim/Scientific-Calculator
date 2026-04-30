@@ -1,6 +1,7 @@
 #include "Evaluator.h"
 #include "../parser/AST.h"
 #include <stdexcept>
+#include <cmath>
 
 double Evaluator::evaluate(ASTNode *node)
 {
@@ -44,6 +45,8 @@ double Evaluator::evaluate(ASTNode *node)
             return left * right;
         case '/':
             return left / right;
+        case '^':
+            return std::pow(left, right);
         }
     }
 
