@@ -4,12 +4,10 @@
 enum class TokenType
 {
     NUMBER,
-    PLUS,
-    MINUS,
-    STAR,
-    SLASH,
-    LPAREN,
-    RPAREN,
+    INDENT,
+    PLUS, MINUS, STAR, SLASH,
+    LPAREN, RPAREN,
+    ASSIGN,
     END
 };
 
@@ -17,4 +15,5 @@ struct Token
 {
     TokenType type;
     double value = 0;
+    std::string name;
 };
