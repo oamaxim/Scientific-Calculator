@@ -35,6 +35,21 @@ std::vector<Token> Lexer::tokenise()
             continue;
         };
 
+        if (isalpha(current)){
+            std::string name;
+
+            while (pos<input.size() && isalnum(input[pos])){
+                name += input[pos];
+                pos++;
+            }
+
+            tokens.push_back({TokenType::INDENT});
+            tokens.back().value = 0;
+            tokens.back().name = name;
+            continue;
+
+        }
+
         switch (current)
         {
         case '+':
@@ -59,6 +74,10 @@ std::vector<Token> Lexer::tokenise()
 
         case ')':
             tokens.push_back({TokenType::RPAREN});
+            break;
+
+        case '=':
+            tokens.push_back({TokenType::ASSIGN});
             break;
 
         default:
