@@ -6,6 +6,7 @@
 int main()
 {
     std::string input;
+    Evaluator evaluator;
 
     while (true)
     {
@@ -22,8 +23,7 @@ int main()
 
             Parser parser(tokens);
             std::unique_ptr<ASTNode> node = parser.parse();
-
-            Evaluator evaluator;
+            
             double result = evaluator.evaluate(node.get());
 
             std::cout << "= " << result << std::endl;
