@@ -47,7 +47,7 @@ double Parser::term()
         Token op = get();
         double right = term();
 
-        if (op.type == TokenType::PLUS)
+        if (op.type == TokenType::STAR)
             result *= right;
         else
             result /= right;
