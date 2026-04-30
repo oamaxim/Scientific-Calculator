@@ -13,7 +13,7 @@ int main()
     {
         std::cout << static_cast<int>(token.type)
                   << " "
-                  << token.type
+                  << token.value
                   << std::endl;
     }
 
