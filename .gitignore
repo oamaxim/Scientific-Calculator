@@ -67,3 +67,10 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+
+# VS Code / IDE
+.project
+.classpath
+.settings/
+.vscode/
+bin/
