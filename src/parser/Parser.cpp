@@ -118,7 +118,7 @@ std::unique_ptr<ASTNode> Parser::factor()
         return node;
     }
 
-    throw std::runtime_error("Invalid Expression");
+    throw std::runtime_error("Unexpected token at position " + std::to_string(t.pos));
 }
 
 std::unique_ptr<ASTNode> Parser::parse()

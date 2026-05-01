@@ -16,4 +16,5 @@ struct Token
     TokenType type;
     double value = 0;
     std::string name;
+    int pos;
 };

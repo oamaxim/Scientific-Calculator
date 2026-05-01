@@ -29,70 +29,68 @@ std::vector<Token> Lexer::tokenise()
                 pos++;
             }
 
-            tokens.push_back({TokenType::NUMBER,
-                              std::stod(num)});
+            tokens.push_back({TokenType::NUMBER, std::stod(num), "", (int)pos});
 
             continue;
         };
 
-        if (isalpha(current)){
+        if (isalpha(current))
+        {
             std::string name;
 
-            while (pos<input.size() && isalnum(input[pos])){
+            while (pos < input.size() && isalnum(input[pos]))
+            {
                 name += input[pos];
                 pos++;
             }
 
-            tokens.push_back({TokenType::INDENT});
-            tokens.back().value = 0;
-            tokens.back().name = name;
+            tokens.push_back({TokenType::INDENT, 0, name, (int)pos});
             continue;
-
         }
 
         switch (current)
         {
         case '+':
-            tokens.push_back({TokenType::PLUS});
+            tokens.push_back({TokenType::PLUS, 0, "", (int)pos});
             break;
 
         case '-':
-            tokens.push_back({TokenType::MINUS});
+            tokens.push_back({TokenType::MINUS, 0, "", (int)pos});
             break;
 
         case '*':
-            tokens.push_back({TokenType::STAR});
+            tokens.push_back({TokenType::STAR, 0, "", (int)pos});
             break;
 
         case '/':
-            tokens.push_back({TokenType::SLASH});
+            tokens.push_back({TokenType::SLASH, 0, "", (int)pos});
             break;
 
         case '(':
-            tokens.push_back({TokenType::LPAREN});
+            tokens.push_back({TokenType::LPAREN, 0, "", (int)pos});
             break;
 
         case ')':
-            tokens.push_back({TokenType::RPAREN});
+            tokens.push_back({TokenType::RPAREN, 0, "", (int)pos});
             break;
 
         case '=':
-            tokens.push_back({TokenType::ASSIGN});
+            tokens.push_back({TokenType::ASSIGN, 0, "", (int)pos});
             break;
 
         case '^':
-            tokens.push_back({TokenType::CARET});
+            tokens.push_back({TokenType::CARET, 0, "", (int)pos});
             break;
 
         case ',':
-            tokens.push_back({TokenType::COMMA});
+            tokens.push_back({TokenType::COMMA, 0, "", (int)pos});
             break;
-
 
         default:
-            throw std::runtime_error("Invalid character");
+            throw std::runtime_error("Invalid character: " + current);
             break;
         }
+
         pos++;
     }
 

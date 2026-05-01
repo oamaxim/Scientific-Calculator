@@ -61,7 +61,7 @@ double Evaluator::evaluate(ASTNode *node)
         if (func->name == "tan") return std::tan(values[0]);
         if (func->name == "sqrt") return std::sqrt(values[0]);
 
-        throw std::runtime_error("Unkwon function: " + func->name);
+        throw std::runtime_error("Unknown function: " + func->name);
     }
 
     throw std::runtime_error("Unknown AST node");
