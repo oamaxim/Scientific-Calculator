@@ -27,6 +27,11 @@ int main()
 
             double result = evaluator.evaluate(node.get());
 
+            if (std::abs(result) < 1e-12)
+            {
+                result = 0;
+            }
+
             std::cout << "= " << result << std::endl;
         }
         catch (const CalcError &e)
@@ -39,7 +44,6 @@ int main()
         {
             std::cout << "Error: " << e.what() << std::endl;
         }
-        
     }
 
     return 0;
