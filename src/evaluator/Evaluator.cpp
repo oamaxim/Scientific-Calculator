@@ -19,7 +19,7 @@ double Evaluator::evaluate(ASTNode *node)
         {
             return variables[var->name];
         }
-        throw std::runtime_error("Undefined variable: " + var->name);
+        throw std::runtime_error("Undefined variable '" + var->name + "'");
     }
 
     // ASSIGNMENT
@@ -51,17 +51,23 @@ double Evaluator::evaluate(ASTNode *node)
         }
     }
 
-    if (auto func = dynamic_cast<FunctionNode*>(node)){
+    if (auto func = dynamic_cast<FunctionNode *>(node))
+    {
         std::vector<double> values;
-        for(auto& arg : func->args){
+        for (auto &arg : func->args)
+        {
             values.push_back(evaluate(arg.get()));
         }
-        if (func->name == "sin") return std::sin(values[0]);
-        if (func->name == "cos") return std::cos(values[0]);
-        if (func->name == "tan") return std::tan(values[0]);
-        if (func->name == "sqrt") return std::sqrt(values[0]);
+        if (func->name == "sin")
+            return std::sin(values[0]);
+        if (func->name == "cos")
+            return std::cos(values[0]);
+        if (func->name == "tan")
+            return std::tan(values[0]);
+        if (func->name == "sqrt")
+            return std::sqrt(values[0]);
 
-        throw std::runtime_error("Unknown function: " + func->name);
+        throw std::runtime_error("Unknown function '" + func->name + "'");
     }
 
     throw std::runtime_error("Unknown AST node");

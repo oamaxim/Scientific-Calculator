@@ -1,8 +1,9 @@
 #pragma once
-#include <vector>
-#include <memory>
 #include "../types/Token.h"
 #include "AST.h"
+#include <vector>
+#include <memory>
+
 
 class Parser
 {

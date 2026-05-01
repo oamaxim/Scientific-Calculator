@@ -1,4 +1,6 @@
 #include "Parser.h"
+#include "../utility/Utility.h"
+#include "../utility/CalcError.h"
 #include <stdexcept>
 
 Parser::Parser(const std::vector<Token> &tokens) : tokens(tokens), pos(0) {}
@@ -85,7 +87,7 @@ std::unique_ptr<ASTNode> Parser::factor()
     if (t.type == TokenType::NUMBER)
         return std::make_unique<NumberNode>(t.value);
 
-    if (t.type == TokenType::INDENT)
+    if (t.type == TokenType::IDENT)
     {
 
         // Function call
@@ -118,12 +120,14 @@ std::unique_ptr<ASTNode> Parser::factor()
         return node;
     }
 
-    throw std::runtime_error("Unexpected token at position " + std::to_string(t.pos));
+    throw CalcError(
+        "Unexpected token '" + tokenToString(t) + "'",
+        t.pos);
 }
 
 std::unique_ptr<ASTNode> Parser::parse()
 {
-    if (peek().type == TokenType::INDENT &&
+    if (peek().type == TokenType::IDENT &&
         tokens[pos + 1].type == TokenType::ASSIGN)
     {
         std::string name = get().name;

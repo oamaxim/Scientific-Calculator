@@ -1,7 +1,8 @@
 #pragma once
+#include "../types/Token.h"
 #include <string>
 #include <vector>
-#include "../types/Token.h"
+
 
 class Lexer
 {

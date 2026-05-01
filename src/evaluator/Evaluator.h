@@ -1,7 +1,7 @@
 #pragma once
+#include "../parser/AST.h"
 #include <unordered_map>
 #include <string>
-#include "../parser/AST.h"
 
 class Evaluator
 {

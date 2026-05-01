@@ -1,6 +1,7 @@
 #include <iostream>
 #include "lexer/Lexer.h"
 #include "parser/Parser.h"
+#include "utility/CalcError.h"
 #include "evaluator/Evaluator.h"
 
 int main()
@@ -23,15 +24,22 @@ int main()
 
             Parser parser(tokens);
             std::unique_ptr<ASTNode> node = parser.parse();
-            
+
             double result = evaluator.evaluate(node.get());
 
             std::cout << "= " << result << std::endl;
         }
-        catch (const std::exception &e)
+        catch (const CalcError &e)
+        {
+            std::cout << input << std::endl;
+            std::cout << std::string(e.pos, ' ') << "^" << std::endl;
+            std::cout << "Error: " << e.what() << std::endl;
+        }
+        catch (const std::runtime_error &e)
         {
             std::cout << "Error: " << e.what() << std::endl;
         }
+        
     }
 
     return 0;

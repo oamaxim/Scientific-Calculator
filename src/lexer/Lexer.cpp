@@ -1,4 +1,5 @@
 #include "Lexer.h"
+#include "../utility/CalcError.h"
 #include <cctype>
 #include <stdexcept>
 #include <iostream>
@@ -37,6 +38,7 @@ std::vector<Token> Lexer::tokenise()
         if (isalpha(current))
         {
             std::string name;
+            int start = (int)pos;
 
             while (pos < input.size() && isalnum(input[pos]))
             {
@@ -44,7 +46,7 @@ std::vector<Token> Lexer::tokenise()
                 pos++;
             }
 
-            tokens.push_back({TokenType::INDENT, 0, name, (int)pos});
+            tokens.push_back({TokenType::IDENT, 0, name, start});
             continue;
         }
 
@@ -87,8 +89,9 @@ std::vector<Token> Lexer::tokenise()
             break;
 
         default:
-            throw std::runtime_error("Invalid character: " + current);
-            break;
+            throw CalcError(
+                std::string("Invalid character '") + current + "'",
+                pos);
         }
 
         pos++;
