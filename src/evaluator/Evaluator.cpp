@@ -1,8 +1,15 @@
 #include "Evaluator.h"
 #include "../parser/AST.h"
+#include "../utility/CalcError.h"
 #include <stdexcept>
 #include <cmath>
 #include <vector>
+
+Evaluator::Evaluator()
+{
+    constants["pi"] = M_PI;
+    constants["e"] = M_E;
+}
 
 double Evaluator::evaluate(ASTNode *node)
 {
@@ -19,12 +26,22 @@ double Evaluator::evaluate(ASTNode *node)
         {
             return variables[var->name];
         }
+
+        if (constants.count(var->name))
+        {
+            return constants[var->name];
+        }
         throw std::runtime_error("Undefined variable '" + var->name + "'");
     }
 
     // ASSIGNMENT
     if (auto assign = dynamic_cast<AssignNode *>(node))
     {
+        if (constants.count(assign->name))
+        {
+            throw std::runtime_error("Cannot assign to constant '" + assign->name + "'");
+        }
+
         double val = evaluate(assign->value.get());
         variables[assign->name] = val;
         return val;
