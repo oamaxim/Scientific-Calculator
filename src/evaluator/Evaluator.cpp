@@ -176,14 +176,46 @@ Value Evaluator::evaluate(ASTNode *node)
             std::holds_alternative<double>(rightV) &&
             bin->op == '^')
         {
-            const Matrix &M = std::get<Matrix>(leftV);
-            double s = std::get<double>(rightV);
+            const Matrix &A = std::get<Matrix>(leftV);
+            int power = (int)std::get<double>(rightV);
 
-            Matrix R(M.rows, M.cols);
-            for (int i = 0; i < M.rows * M.cols; i++)
-                R.data[i] = s * M.data[i];
+            if (power < 0)
+                throw CalcError("Matrix power must be non-negative", 0);
 
-            return R;
+            if (A.rows != A.cols)
+                throw CalcError("Matrix power requires square matrix", 0);
+
+            // Identity matrix
+            Matrix result(A.rows, A.cols);
+            for (int i = 0; i < A.rows; i++)
+                result.at(i, i) = 1;
+
+            if (power == 0)
+                return result;
+
+            Matrix base = A;
+
+            for (int p = 0; p < power; p++)
+            {
+                Matrix temp(A.rows, A.cols);
+
+                for (int i = 0; i < A.rows; i++)
+                {
+                    for (int j = 0; j < A.cols; j++)
+                    {
+                        double sum = 0;
+                        for (int k = 0; k < A.cols; k++)
+                        {
+                            sum += result.at(i, k) * base.at(k, j);
+                        }
+                        temp.at(i, j) = sum;
+                    }
+                }
+
+                result = temp;
+            }
+
+            return result;
         }
     }
 
