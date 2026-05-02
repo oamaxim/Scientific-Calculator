@@ -83,13 +83,15 @@ double Evaluator::evaluate(ASTNode *node)
         if (func->name == "tan")
             return std::tan(values[0]);
 
+        // Reciprocal Trig
         if (func->name == "cosec")
-            return 1/std::sin(values[0]);
+            return 1 / std::sin(values[0]);
         if (func->name == "sec")
-            return 1/std::cos(values[0]);
+            return 1 / std::cos(values[0]);
         if (func->name == "cot")
-            return 1/std::tan(values[0]);
-        
+            return 1 / std::tan(values[0]);
+
+        // Inverse Trig
         if (func->name == "arcsin")
             return std::asin(values[0]);
         if (func->name == "arccos")
@@ -97,13 +99,15 @@ double Evaluator::evaluate(ASTNode *node)
         if (func->name == "arctan")
             return std::atan(values[0]);
 
+        // Inverse Reciprocal Trig
         if (func->name == "arccsc")
-            return std::asin(1/values[0]);
+            return std::asin(1 / values[0]);
         if (func->name == "arcsec")
-            return std::acos(1/values[0]);
+            return std::acos(1 / values[0]);
         if (func->name == "cot")
-            return std::atan(1/values[0]);
+            return std::atan(1 / values[0]);
 
+        // Hyperbolic
         if (func->name == "sinh")
             return std::sinh(values[0]);
         if (func->name == "cosh")
@@ -111,6 +115,7 @@ double Evaluator::evaluate(ASTNode *node)
         if (func->name == "tanh")
             return std::tanh(values[0]);
 
+        // Inverse Hyperbolic
         if (func->name == "arcsinh")
             return std::asinh(values[0]);
         if (func->name == "arccosh")
@@ -118,6 +123,102 @@ double Evaluator::evaluate(ASTNode *node)
         if (func->name == "arctanh")
             return std::atanh(values[0]);
 
+        // Matricies
+        if (func->name == "mat")
+        {
+            auto &args = func->args;
+            if (args.size() < 2)
+            {
+                throw CalcError("Matrix requires rows and columns", 0);
+            }
+
+            int r = (int)evaluate(args[0].get());
+            int c = (int)evaluate(args[1].get());
+
+            Matrix m(r, c);
+
+            int expected = r * c;
+
+            if ((int)args.size() - 2 != expected)
+            {
+                throw CalcError("Incorrect number of matrix values", 0);
+            }
+
+            for (int i = 0; i < expected; i++)
+            {
+                m.data[i] = evaluate(args[i + 2].get());
+            }
+
+            matricies["last"] = m;
+
+            return 0;
+        }
+
+        if (func->name == "det")
+        {
+            if (!matricies.count("last"))
+            {
+                throw CalcError("No matrix defined", 0);
+            }
+
+            Matrix &m = matricies["last"];
+
+            if (m.rows != m.cols)
+            {
+                throw CalcError("Matrix must be square", 0);
+            }
+
+            int n = m.rows;
+            std::vector<double> a = m.data;
+
+            double det = 1;
+
+            for (int col = 0; col < n; col++)
+            {
+                int pivot = -1;
+
+                for (int row = col; row < n; row++)
+                {
+                    if (std::abs(a[row * n + col]) > 1e-12)
+                    {
+                        pivot = row;
+                        break;
+                    }
+                }
+
+                if (pivot < 0)
+                {
+                    return 0;
+                }
+                if (pivot != col)
+                {
+                    for (int k = 0; k < n; k++)
+                    {
+                        std::swap(a[pivot * n + k], a[col * n + k]);
+                    }
+
+                    det = -det;
+                }
+
+                det *= a[col * n + col];
+
+                double piv = a[col * n + col];
+
+                for (int row = col + 1; row < n; row++)
+                {
+                    double f = a[row * n + col] / piv;
+
+                    for (int k = col; k < n; k++)
+                    {
+                        a[row * n + k] -= f * a[col * n + k];
+                    }
+                }
+            }
+
+            return det;
+        }
+
+        // Others
         if (func->name == "sqrt")
             return std::sqrt(values[0]);
 
