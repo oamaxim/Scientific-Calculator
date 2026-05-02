@@ -52,21 +52,138 @@ Value Evaluator::evaluate(ASTNode *node)
     // BINARY
     if (auto bin = dynamic_cast<BinaryNode *>(node))
     {
-        double left = asNumber(evaluate(bin->left.get()));
-        double right = asNumber(evaluate(bin->right.get()));
+        Value leftV = evaluate(bin->left.get());
+        Value rightV = evaluate(bin->right.get());
 
-        switch (bin->op)
+        // Both Numbers
+        if (std::holds_alternative<double>(leftV) &&
+            std::holds_alternative<double>(rightV))
         {
-        case '+':
-            return left + right;
-        case '-':
-            return left - right;
-        case '*':
-            return left * right;
-        case '/':
-            return left / right;
-        case '^':
-            return std::pow(left, right);
+
+            double left = std::get<double>(leftV);
+            double right = std::get<double>(rightV);
+
+            switch (bin->op)
+            {
+            case '+':
+                return left + right;
+            case '-':
+                return left - right;
+            case '*':
+                return left * right;
+            case '/':
+                if (right == 0)
+                    throw CalcError("Division by zero", 0);
+                return left / right;
+            case '^':
+                return std::pow(left, right);
+            }
+        }
+
+        // Both Matrix
+        if (std::holds_alternative<Matrix>(leftV) &&
+            std::holds_alternative<Matrix>(rightV))
+        {
+
+            const Matrix &A = std::get<Matrix>(leftV);
+            const Matrix &B = std::get<Matrix>(rightV);
+
+            if (bin->op == '+')
+            {
+                if (A.rows != B.rows || A.cols != B.cols)
+                {
+                    throw CalcError("Matrix size mismatch", 0);
+                }
+                Matrix R(A.rows, A.cols);
+                for (int i = 0; i < A.rows * A.cols; i++)
+                {
+                    R.data[i] = A.data[i] + B.data[i];
+                }
+                return R;
+            }
+
+            if (bin->op == '-')
+            {
+                if (A.rows != B.rows || A.cols != B.cols)
+                {
+                    throw CalcError("Matrix size mismatch", 0);
+                }
+                Matrix R(A.rows, A.cols);
+                for (int i = 0; i < A.rows * A.cols; i++)
+                {
+                    R.data[i] = A.data[i] - B.data[i];
+                }
+                return R;
+            }
+
+            if (bin->op == '*')
+            {
+                if (A.cols != B.rows)
+                {
+                    throw CalcError("Invalid matrix multiplication dimension", 0);
+                }
+
+                Matrix R(A.rows, B.cols);
+
+                for (int i = 0; i < A.rows; i++)
+                {
+                    for (int j = 0; j < B.cols; j++)
+                    {
+                        double sum = 0;
+                        for (int k = 0; k < A.cols; k++)
+                        {
+                            sum += A.at(i, k) * B.at(k, j);
+                        }
+                        R.at(i, j) = sum;
+                    }
+                }
+
+                return R;
+            }
+        }
+
+        // Number and Matrix
+        if (std::holds_alternative<double>(leftV) &&
+            std::holds_alternative<Matrix>(rightV) &&
+            bin->op == '*')
+        {
+            double s = std::get<double>(leftV);
+            const Matrix &M = std::get<Matrix>(rightV);
+
+            Matrix R(M.rows, M.cols);
+            for (int i = 0; i < M.rows * M.cols; i++)
+                R.data[i] = s * M.data[i];
+
+            return R;
+        }
+
+        // Matrix and Number
+        if (std::holds_alternative<Matrix>(leftV) &&
+            std::holds_alternative<double>(rightV) &&
+            bin->op == '*')
+        {
+            const Matrix &M = std::get<Matrix>(leftV);
+            double s = std::get<double>(rightV);
+
+            Matrix R(M.rows, M.cols);
+            for (int i = 0; i < M.rows * M.cols; i++)
+                R.data[i] = s * M.data[i];
+
+            return R;
+        }
+
+        if (std::holds_alternative<Matrix>(leftV) &&
+            std::holds_alternative<double>(rightV) &&
+            bin->op == '^')
+        {
+            const Matrix &M = std::get<Matrix>(leftV);
+            double s = std::get<double>(rightV);
+
+            Matrix R(M.rows, M.cols);
+            for (int i = 0; i < M.rows * M.cols; i++)
+                R.data[i] = s * M.data[i];
+
+            return R;
         }
     }
 
