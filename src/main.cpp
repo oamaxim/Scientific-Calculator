@@ -25,14 +25,32 @@ int main()
             Parser parser(tokens);
             std::unique_ptr<ASTNode> node = parser.parse();
 
-            double result = evaluator.evaluate(node.get());
+            Value result = evaluator.evaluate(node.get());
 
-            if (std::abs(result) < 1e-12)
+            if (std::holds_alternative<double>(result))
             {
-                result = 0;
-            }
+                double res = std::get<double>(result);
+                if (std::abs(res) < 1e-12)
+                {
+                    res = 0;
+                }
 
-            std::cout << "= " << result << std::endl;
+                std::cout << "= " << res << std::endl;
+            }
+            else
+            {
+                Matrix m = std::get<Matrix>(result);
+
+                std::cout << "Matrix (" << m.rows << "x" << m.cols << "):" << std::endl;
+                for (int r = 0; r < m.rows; r++)
+                {
+                    for (int c = 0; c < m.cols; c++)
+                    {
+                        std::cout << m.at(r, c) << " ";
+                    }
+                    std::cout << std::endl;
+                }
+            }
         }
         catch (const CalcError &e)
         {

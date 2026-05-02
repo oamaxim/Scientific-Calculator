@@ -11,7 +11,7 @@ Evaluator::Evaluator()
     constants["e"] = M_E;
 }
 
-double Evaluator::evaluate(ASTNode *node)
+Value Evaluator::evaluate(ASTNode *node)
 {
     // NUMBER
     if (auto num = dynamic_cast<NumberNode *>(node))
@@ -42,16 +42,18 @@ double Evaluator::evaluate(ASTNode *node)
             throw std::runtime_error("Cannot assign to constant '" + assign->name + "'");
         }
 
-        double val = evaluate(assign->value.get());
+        Value val = evaluate(assign->value.get());
+
         variables[assign->name] = val;
+
         return val;
     }
 
     // BINARY
     if (auto bin = dynamic_cast<BinaryNode *>(node))
     {
-        double left = evaluate(bin->left.get());
-        double right = evaluate(bin->right.get());
+        double left = asNumber(evaluate(bin->left.get()));
+        double right = asNumber(evaluate(bin->right.get()));
 
         switch (bin->op)
         {
@@ -73,7 +75,7 @@ double Evaluator::evaluate(ASTNode *node)
         std::vector<double> values;
         for (auto &arg : func->args)
         {
-            values.push_back(evaluate(arg.get()));
+            values.push_back(asNumber(evaluate(arg.get())));
         }
         // Trig
         if (func->name == "sin")
@@ -104,7 +106,7 @@ double Evaluator::evaluate(ASTNode *node)
             return std::asin(1 / values[0]);
         if (func->name == "arcsec")
             return std::acos(1 / values[0]);
-        if (func->name == "cot")
+        if (func->name == "arccot")
             return std::atan(1 / values[0]);
 
         // Hyperbolic
@@ -132,36 +134,34 @@ double Evaluator::evaluate(ASTNode *node)
                 throw CalcError("Matrix requires rows and columns", 0);
             }
 
-            int r = (int)evaluate(args[0].get());
-            int c = (int)evaluate(args[1].get());
+            int r = (int)asNumber(evaluate(args[0].get()));
+            int c = (int)asNumber(evaluate(args[1].get()));
 
             Matrix m(r, c);
 
             int expected = r * c;
 
-            if ((int)args.size() - 2 != expected)
+            if ((int)func->args.size() - 2 != expected)
             {
                 throw CalcError("Incorrect number of matrix values", 0);
             }
 
             for (int i = 0; i < expected; i++)
             {
-                m.data[i] = evaluate(args[i + 2].get());
+                m.data[i] = asNumber(evaluate(args[i + 2].get()));
             }
 
-            matricies["last"] = m;
-
-            return 0;
+            return m;
         }
 
         if (func->name == "det")
         {
-            if (!matricies.count("last"))
+            if (func->args.size() != 1)
             {
-                throw CalcError("No matrix defined", 0);
+                throw CalcError("det() expects 1 matrix argument", 0);
             }
 
-            Matrix &m = matricies["last"];
+            Matrix m = asMatrix(evaluate(func->args[0].get()));
 
             if (m.rows != m.cols)
             {
@@ -188,7 +188,7 @@ double Evaluator::evaluate(ASTNode *node)
 
                 if (pivot < 0)
                 {
-                    return 0;
+                    return 0.0;
                 }
                 if (pivot != col)
                 {
@@ -229,4 +229,22 @@ double Evaluator::evaluate(ASTNode *node)
     }
 
     throw std::runtime_error("Unknown AST node");
+}
+
+double Evaluator::asNumber(const Value &v)
+{
+    if (!std::holds_alternative<double>(v))
+    {
+        throw CalcError("Expected number", 0);
+    }
+    return std::get<double>(v);
+}
+
+const Matrix &Evaluator::asMatrix(const Value &v)
+{
+    if (!std::holds_alternative<Matrix>(v))
+    {
+        throw CalcError("Expected matrix", 0);
+    }
+    return std::get<Matrix>(v);
 }
