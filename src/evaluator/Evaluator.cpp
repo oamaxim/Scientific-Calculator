@@ -75,14 +75,54 @@ double Evaluator::evaluate(ASTNode *node)
         {
             values.push_back(evaluate(arg.get()));
         }
+        // Trig
         if (func->name == "sin")
             return std::sin(values[0]);
         if (func->name == "cos")
             return std::cos(values[0]);
         if (func->name == "tan")
             return std::tan(values[0]);
+
+        if (func->name == "cosec")
+            return 1/std::sin(values[0]);
+        if (func->name == "sec")
+            return 1/std::cos(values[0]);
+        if (func->name == "cot")
+            return 1/std::tan(values[0]);
+        
+        if (func->name == "arcsin")
+            return std::asin(values[0]);
+        if (func->name == "arccos")
+            return std::acos(values[0]);
+        if (func->name == "arctan")
+            return std::atan(values[0]);
+
+        if (func->name == "arccsc")
+            return std::asin(1/values[0]);
+        if (func->name == "arcsec")
+            return std::acos(1/values[0]);
+        if (func->name == "cot")
+            return std::atan(1/values[0]);
+
+        if (func->name == "sinh")
+            return std::sinh(values[0]);
+        if (func->name == "cosh")
+            return std::cosh(values[0]);
+        if (func->name == "tanh")
+            return std::tanh(values[0]);
+
+        if (func->name == "arcsinh")
+            return std::asinh(values[0]);
+        if (func->name == "arccosh")
+            return std::acosh(values[0]);
+        if (func->name == "arctanh")
+            return std::atanh(values[0]);
+
         if (func->name == "sqrt")
             return std::sqrt(values[0]);
+
+        if (func->name == "abs")
+            return std::abs(values[0]);
 
         throw std::runtime_error("Unknown function '" + func->name + "'");
     }
