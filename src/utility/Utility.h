@@ -15,4 +15,3 @@ public:
 
 std::string tokenToString(const Token &t);
 std::string trim(const std::string& s);
-double nearZero(double a);

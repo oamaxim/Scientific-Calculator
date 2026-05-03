@@ -41,12 +41,3 @@ std::string trim(const std::string &s)
         return "";
     return s.substr(start, end - start + 1);
 }
-
-double nearZero(double a)
-{
-    if (std::abs(a) < 1e-12)
-    {
-        a = 0;
-    }
-    return a;
-}

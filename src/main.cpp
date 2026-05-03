@@ -32,13 +32,11 @@ int main()
         }
         catch (const CalcError &e)
         {
-            std::cout << input << std::endl;
-            std::cout << std::string(e.pos, ' ') << "^" << std::endl;
-            std::cout << "Error: " << e.what() << std::endl;
+           Printer::printCalcError(input, e);
         }
         catch (const std::runtime_error &e)
         {
-            std::cout << "Error: " << e.what() << std::endl;
+            Printer::printRuntimeError(e);
         }
     }
 
