@@ -1,5 +1,5 @@
 #include "Lexer.h"
-#include "../utility/CalcError.h"
+#include "../utility/Utility.h"
 #include <cctype>
 #include <stdexcept>
 #include <iostream>

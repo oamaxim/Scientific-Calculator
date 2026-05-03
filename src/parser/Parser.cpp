@@ -1,6 +1,5 @@
 #include "Parser.h"
 #include "../utility/Utility.h"
-#include "../utility/CalcError.h"
 #include <stdexcept>
 
 Parser::Parser(const std::vector<Token> &tokens) : tokens(tokens), pos(0) {}

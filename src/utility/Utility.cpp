@@ -32,9 +32,7 @@ std::string tokenToString(const Token &t)
     }
 }
 
-
-
-void printMatrix(const Matrix& M)
+void printMatrix(const Matrix &M)
 {
     std::cout << "Matrix (" << M.rows << "x" << M.cols << "):\n";
 
@@ -47,3 +45,4 @@ void printMatrix(const Matrix& M)
         std::cout << "\n";
     }
 }
+

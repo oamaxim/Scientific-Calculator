@@ -1,7 +1,7 @@
 #include "Evaluator.h"
 #include "../parser/AST.h"
-#include "../utility/CalcError.h"
 #include "../types/Matrix.h"
+#include "../utility/Utility.h"
 #include <stdexcept>
 #include <cmath>
 #include <vector>
@@ -74,7 +74,7 @@ Value Evaluator::evaluate(ASTNode *node)
                 return left * right;
             case '/':
                 if (right == 0)
-                    throw CalcError("Division by zero", 0);
+                    throw std::runtime_error("Division by zero");
                 return left / right;
             case '^':
                 return std::pow(left, right);
@@ -97,6 +97,8 @@ Value Evaluator::evaluate(ASTNode *node)
                 return Matrix::subtract(A, B);
             case '*':
                 return Matrix::multiply(A, B);
+            case '/':
+                return Matrix::divide(A, B);
             }
         }
 
@@ -257,7 +259,7 @@ double Evaluator::asNumber(const Value &v)
 {
     if (!std::holds_alternative<double>(v))
     {
-        throw CalcError("Expected number", 0);
+        throw std::runtime_error("Expected number");
     }
     return std::get<double>(v);
 }
@@ -266,7 +268,7 @@ const Matrix &Evaluator::asMatrix(const Value &v)
 {
     if (!std::holds_alternative<Matrix>(v))
     {
-        throw CalcError("Expected matrix", 0);
+        throw std::runtime_error("Expected matrix");
     }
     return std::get<Matrix>(v);
 }
