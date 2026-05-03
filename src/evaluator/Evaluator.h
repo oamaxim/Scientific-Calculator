@@ -14,9 +14,6 @@ private:
     double asNumber(const Value &v);
     const Matrix &asMatrix(const Value &v);
 
-    Matrix matrixMultiply(const Matrix &A, const Matrix &B);
-    Matrix matrixPower(Matrix base, int exp);
-
 public:
     Evaluator();
     Value evaluate(ASTNode *node);

@@ -1,6 +1,7 @@
 #include "Evaluator.h"
 #include "../parser/AST.h"
 #include "../utility/CalcError.h"
+#include "../types/Matrix.h"
 #include <stdexcept>
 #include <cmath>
 #include <vector>
@@ -88,42 +89,14 @@ Value Evaluator::evaluate(ASTNode *node)
             const Matrix &A = std::get<Matrix>(leftV);
             const Matrix &B = std::get<Matrix>(rightV);
 
-            if (bin->op == '+')
+            switch (bin->op)
             {
-                if (A.rows != B.rows || A.cols != B.cols)
-                {
-                    throw CalcError("Matrix size mismatch", 0);
-                }
-                Matrix R(A.rows, A.cols);
-                for (int i = 0; i < A.rows * A.cols; i++)
-                {
-                    R.data[i] = A.data[i] + B.data[i];
-                }
-                return R;
-            }
-
-            if (bin->op == '-')
-            {
-                if (A.rows != B.rows || A.cols != B.cols)
-                {
-                    throw CalcError("Matrix size mismatch", 0);
-                }
-                Matrix R(A.rows, A.cols);
-                for (int i = 0; i < A.rows * A.cols; i++)
-                {
-                    R.data[i] = A.data[i] - B.data[i];
-                }
-                return R;
-            }
-
-            if (bin->op == '*')
-            {
-                if (A.cols != B.rows)
-                {
-                    throw CalcError("Invalid matrix multiplication dimension", 0);
-                }
-
-                return matrixMultiply(A, B);
+            case '+':
+                return Matrix::add(A, B);
+            case '-':
+                return Matrix::subtract(A, B);
+            case '*':
+                return Matrix::multiply(A, B);
             }
         }
 
@@ -135,42 +108,23 @@ Value Evaluator::evaluate(ASTNode *node)
             double s = std::get<double>(leftV);
             const Matrix &M = std::get<Matrix>(rightV);
 
-            Matrix R(M.rows, M.cols);
-            for (int i = 0; i < M.rows * M.cols; i++)
-                R.data[i] = s * M.data[i];
-
-            return R;
+            return Matrix::scalarMultiply(M, s);
         }
 
         // Matrix and Number
         if (std::holds_alternative<Matrix>(leftV) &&
-            std::holds_alternative<double>(rightV) &&
-            bin->op == '*')
+            std::holds_alternative<double>(rightV))
         {
             const Matrix &M = std::get<Matrix>(leftV);
             double s = std::get<double>(rightV);
 
-            Matrix R(M.rows, M.cols);
-            for (int i = 0; i < M.rows * M.cols; i++)
-                R.data[i] = s * M.data[i];
-
-            return R;
-        }
-
-        if (std::holds_alternative<Matrix>(leftV) &&
-            std::holds_alternative<double>(rightV) &&
-            bin->op == '^')
-        {
-            const Matrix &A = std::get<Matrix>(leftV);
-            int power = (int)std::get<double>(rightV);
-
-            if (power < 0)
-                throw CalcError("Matrix power must be non-negative", 0);
-
-            if (A.rows != A.cols)
-                throw CalcError("Matrix power requires square matrix", 0);
-
-            return matrixPower(A, power);
+            switch (bin->op)
+            {
+            case '*':
+                return Matrix::scalarMultiply(M, s);
+            case '^':
+                return Matrix::power(M, (int)s);
+            }
         }
     }
 
@@ -333,47 +287,6 @@ Value Evaluator::evaluate(ASTNode *node)
     }
 
     throw std::runtime_error("Unknown AST node");
-}
-
-Matrix  Evaluator::matrixMultiply(const Matrix& A, const Matrix& B)
-{
-    Matrix R(A.rows, B.cols);
-
-    for (int i = 0; i < A.rows; i++)
-    {
-        for (int j = 0; j < B.cols; j++)
-        {
-            double sum = 0;
-            for (int k = 0; k < A.cols; k++)
-            {
-                sum += A.at(i, k) * B.at(k, j);
-            }
-            R.at(i, j) = sum;
-        }
-    }
-
-    return R;
-}
-
-Matrix Evaluator::matrixPower(Matrix base, int exp)
-{
-    int n = base.rows;
-
-    // Identity matrix
-    Matrix result(n, n);
-    for (int i = 0; i < n; i++)
-        result.at(i, i) = 1;
-
-    while (exp > 0)
-    {
-        if (exp % 2 == 1)
-            result = matrixMultiply(result, base);
-
-        base = matrixMultiply(base, base);
-        exp /= 2;
-    }
-
-    return result;
 }
 
 double Evaluator::asNumber(const Value &v)

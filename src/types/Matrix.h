@@ -8,16 +8,15 @@ public:
     int rows, cols;
     std::vector<double> data;
 
-    Matrix() : rows(0), cols(0) {}
-    Matrix(int r, int c) : rows(r), cols(c), data(r * c, 0.0) {}
+    Matrix(int r, int c);
 
-    double &at(int r, int c)
-    {
-        return data[r * cols + c];
-    };
+    double &at(int r, int c);
+    double at(int r, int c) const;
 
-    double at(int r, int c) const
-    {
-        return data[r * cols + c];
-    };
+    static Matrix add(const Matrix &A, const Matrix &B);
+    static Matrix subtract(const Matrix &A, const Matrix &B);
+    static Matrix multiply(const Matrix &A, const Matrix &B);
+    static Matrix scalarMultiply(const Matrix &M, double s);
+    static Matrix identity(int n);
+    static Matrix power(Matrix base, int exp);
 };
