@@ -32,17 +32,21 @@ std::string tokenToString(const Token &t)
     }
 }
 
-void printMatrix(const Matrix &M)
+std::string trim(const std::string &s)
 {
-    std::cout << "Matrix (" << M.rows << "x" << M.cols << "):\n";
+    size_t start = s.find_first_not_of(" \t\n\r");
+    size_t end = s.find_last_not_of(" \t\n\r");
 
-    for (int i = 0; i < M.rows; i++)
-    {
-        for (int j = 0; j < M.cols; j++)
-        {
-            std::cout << std::setw(8) << M.at(i, j) << " ";
-        }
-        std::cout << "\n";
-    }
+    if (start == std::string::npos)
+        return "";
+    return s.substr(start, end - start + 1);
 }
 
+double nearZero(double a)
+{
+    if (std::abs(a) < 1e-12)
+    {
+        a = 0;
+    }
+    return a;
+}

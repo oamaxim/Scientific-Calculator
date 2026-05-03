@@ -14,4 +14,5 @@ public:
 };
 
 std::string tokenToString(const Token &t);
-void printMatrix(const Matrix& M);
+std::string trim(const std::string& s);
+double nearZero(double a);
