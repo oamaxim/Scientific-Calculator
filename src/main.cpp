@@ -1,8 +1,8 @@
 #include <iostream>
 #include "lexer/Lexer.h"
 #include "parser/Parser.h"
-#include "utility/CalcError.h"
 #include "utility/Utility.h"
+#include "utility/Printer.h"
 #include "evaluator/Evaluator.h"
 
 int main()
@@ -28,22 +28,7 @@ int main()
 
             Value result = evaluator.evaluate(node.get());
 
-            if (std::holds_alternative<double>(result))
-            {
-                double res = std::get<double>(result);
-                if (std::abs(res) < 1e-12)
-                {
-                    res = 0;
-                }
-
-                std::cout << "= " << res << std::endl;
-            }
-            else
-            {
-                Matrix M = std::get<Matrix>(result);
-
-                printMatrix(M);
-            }
+            Printer::printValue(result);
         }
         catch (const CalcError &e)
         {
