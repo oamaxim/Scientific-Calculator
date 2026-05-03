@@ -18,6 +18,29 @@ int main()
         if (input == "exit")
             break;
 
+        if (input == "deg")
+        {
+            evaluator.setAngleMode(AngleMode::DEG);
+            std::cout << "Switched to DEG\n";
+            continue;
+        }
+
+        if (input == "rad")
+        {
+            evaluator.setAngleMode(AngleMode::RAD);
+            std::cout << "Switched to RAD\n";
+            continue;
+        }
+
+        if (input == "mode")
+        {
+            if (evaluator.getAngleMode() == AngleMode::DEG)
+                std::cout << "= DEG\n";
+            else
+                std::cout << "= RAD\n";
+            continue;
+        }
+
         try
         {
             Lexer lexer(input);
@@ -32,7 +55,7 @@ int main()
         }
         catch (const CalcError &e)
         {
-           Printer::printCalcError(input, e);
+            Printer::printCalcError(input, e);
         }
         catch (const std::runtime_error &e)
         {

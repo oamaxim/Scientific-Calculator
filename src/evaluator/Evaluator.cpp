@@ -139,35 +139,35 @@ Value Evaluator::evaluate(ASTNode *node)
         }
         // Trig
         if (func->name == "sin")
-            return std::sin(values[0]);
+            return std::sin(toRadians(values[0], angleMode));
         if (func->name == "cos")
-            return std::cos(values[0]);
+            return std::cos(toRadians(values[0], angleMode));
         if (func->name == "tan")
-            return std::tan(values[0]);
+            return std::tan(toRadians(values[0], angleMode));
 
         // Reciprocal Trig
         if (func->name == "cosec")
-            return 1 / std::sin(values[0]);
+            return 1 / std::sin(toRadians(values[0], angleMode));
         if (func->name == "sec")
-            return 1 / std::cos(values[0]);
+            return 1 / std::cos(toRadians(values[0], angleMode));
         if (func->name == "cot")
-            return 1 / std::tan(values[0]);
+            return 1 / std::tan(toRadians(values[0], angleMode));
 
         // Inverse Trig
         if (func->name == "arcsin")
-            return std::asin(values[0]);
+            return fromRadians(std::asin(values[0]), angleMode);
         if (func->name == "arccos")
-            return std::acos(values[0]);
+            return fromRadians(std::acos(values[0]), angleMode);
         if (func->name == "arctan")
-            return std::atan(values[0]);
+            return fromRadians(std::atan(values[0]), angleMode);
 
         // Inverse Reciprocal Trig
         if (func->name == "arccsc")
-            return std::asin(1 / values[0]);
+            return fromRadians(std::asin(1 / values[0]), angleMode);
         if (func->name == "arcsec")
-            return std::acos(1 / values[0]);
+            return fromRadians(std::acos(1 / values[0]), angleMode);
         if (func->name == "arccot")
-            return std::atan(1 / values[0]);
+            return fromRadians(std::atan(1 / values[0]), angleMode);
 
         // Hyperbolic
         if (func->name == "sinh")
@@ -271,4 +271,29 @@ const Matrix &Evaluator::asMatrix(const Value &v)
         throw std::runtime_error("Expected matrix");
     }
     return std::get<Matrix>(v);
+}
+
+void Evaluator::setAngleMode(AngleMode mode)
+{
+    angleMode = mode;
+}
+
+AngleMode Evaluator::getAngleMode() const
+{
+    return angleMode;
+}
+
+
+double Evaluator::toRadians(double x, AngleMode mode)
+{
+    if (mode == AngleMode::DEG)
+        return x * M_PI / 180.0;
+    return x;
+}
+
+double Evaluator::fromRadians(double x, AngleMode mode)
+{
+    if (mode == AngleMode::DEG)
+        return x * 180.0 / M_PI;
+    return x;
 }

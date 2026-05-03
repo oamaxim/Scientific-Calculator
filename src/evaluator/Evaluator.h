@@ -5,6 +5,12 @@
 #include <unordered_map>
 #include <string>
 
+enum class AngleMode
+{
+    RAD,
+    DEG
+};
+
 class Evaluator
 {
 private:
@@ -13,8 +19,16 @@ private:
 
     double asNumber(const Value &v);
     const Matrix &asMatrix(const Value &v);
+    static double toRadians(double x, AngleMode mode);
+    static double fromRadians(double x, AngleMode mode);
 
 public:
     Evaluator();
     Value evaluate(ASTNode *node);
+
+    AngleMode angleMode = AngleMode::RAD;
+    void setAngleMode(AngleMode mode);
+
+    AngleMode getAngleMode() const;
 };
+
