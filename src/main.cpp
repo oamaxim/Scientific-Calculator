@@ -2,6 +2,7 @@
 #include "lexer/Lexer.h"
 #include "parser/Parser.h"
 #include "utility/CalcError.h"
+#include "utility/Utility.h"
 #include "evaluator/Evaluator.h"
 
 int main()
@@ -39,17 +40,9 @@ int main()
             }
             else
             {
-                Matrix m = std::get<Matrix>(result);
+                Matrix M = std::get<Matrix>(result);
 
-                std::cout << "Matrix (" << m.rows << "x" << m.cols << "):" << std::endl;
-                for (int r = 0; r < m.rows; r++)
-                {
-                    for (int c = 0; c < m.cols; c++)
-                    {
-                        std::cout << m.at(r, c) << " ";
-                    }
-                    std::cout << std::endl;
-                }
+                printMatrix(M);
             }
         }
         catch (const CalcError &e)

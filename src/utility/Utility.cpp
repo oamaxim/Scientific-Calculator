@@ -1,5 +1,6 @@
 #include "Utility.h"
-
+#include <iostream>
+#include <iomanip>
 std::string tokenToString(const Token &t)
 {
     switch (t.type)
@@ -28,5 +29,21 @@ std::string tokenToString(const Token &t)
         return std::to_string(t.value);
     default:
         return "<unknown>";
+    }
+}
+
+
+
+void printMatrix(const Matrix& M)
+{
+    std::cout << "Matrix (" << M.rows << "x" << M.cols << "):\n";
+
+    for (int i = 0; i < M.rows; i++)
+    {
+        for (int j = 0; j < M.cols; j++)
+        {
+            std::cout << std::setw(8) << M.at(i, j) << " ";
+        }
+        std::cout << "\n";
     }
 }
