@@ -10,11 +10,14 @@ class Evaluator
 private:
     std::unordered_map<std::string, Value> variables;
     std::unordered_map<std::string, double> constants;
+
     double asNumber(const Value &v);
-    const Matrix& asMatrix(const Value &v);
+    const Matrix &asMatrix(const Value &v);
+
+    Matrix matrixMultiply(const Matrix &A, const Matrix &B);
+    Matrix matrixPower(Matrix base, int exp);
 
 public:
     Evaluator();
     Value evaluate(ASTNode *node);
-    
 };

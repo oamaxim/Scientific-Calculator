@@ -123,22 +123,7 @@ Value Evaluator::evaluate(ASTNode *node)
                     throw CalcError("Invalid matrix multiplication dimension", 0);
                 }
 
-                Matrix R(A.rows, B.cols);
-
-                for (int i = 0; i < A.rows; i++)
-                {
-                    for (int j = 0; j < B.cols; j++)
-                    {
-                        double sum = 0;
-                        for (int k = 0; k < A.cols; k++)
-                        {
-                            sum += A.at(i, k) * B.at(k, j);
-                        }
-                        R.at(i, j) = sum;
-                    }
-                }
-
-                return R;
+                return matrixMultiply(A, B);
             }
         }
 
@@ -185,37 +170,7 @@ Value Evaluator::evaluate(ASTNode *node)
             if (A.rows != A.cols)
                 throw CalcError("Matrix power requires square matrix", 0);
 
-            // Identity matrix
-            Matrix result(A.rows, A.cols);
-            for (int i = 0; i < A.rows; i++)
-                result.at(i, i) = 1;
-
-            if (power == 0)
-                return result;
-
-            Matrix base = A;
-
-            for (int p = 0; p < power; p++)
-            {
-                Matrix temp(A.rows, A.cols);
-
-                for (int i = 0; i < A.rows; i++)
-                {
-                    for (int j = 0; j < A.cols; j++)
-                    {
-                        double sum = 0;
-                        for (int k = 0; k < A.cols; k++)
-                        {
-                            sum += result.at(i, k) * base.at(k, j);
-                        }
-                        temp.at(i, j) = sum;
-                    }
-                }
-
-                result = temp;
-            }
-
-            return result;
+            return matrixPower(A, power);
         }
     }
 
@@ -378,6 +333,47 @@ Value Evaluator::evaluate(ASTNode *node)
     }
 
     throw std::runtime_error("Unknown AST node");
+}
+
+Matrix  Evaluator::matrixMultiply(const Matrix& A, const Matrix& B)
+{
+    Matrix R(A.rows, B.cols);
+
+    for (int i = 0; i < A.rows; i++)
+    {
+        for (int j = 0; j < B.cols; j++)
+        {
+            double sum = 0;
+            for (int k = 0; k < A.cols; k++)
+            {
+                sum += A.at(i, k) * B.at(k, j);
+            }
+            R.at(i, j) = sum;
+        }
+    }
+
+    return R;
+}
+
+Matrix Evaluator::matrixPower(Matrix base, int exp)
+{
+    int n = base.rows;
+
+    // Identity matrix
+    Matrix result(n, n);
+    for (int i = 0; i < n; i++)
+        result.at(i, i) = 1;
+
+    while (exp > 0)
+    {
+        if (exp % 2 == 1)
+            result = matrixMultiply(result, base);
+
+        base = matrixMultiply(base, base);
+        exp /= 2;
+    }
+
+    return result;
 }
 
 double Evaluator::asNumber(const Value &v)
