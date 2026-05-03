@@ -27,5 +27,4 @@ private:
     Token peek();
     Token get();
     Token& prev();
-    // bool match(TokenType type);
 };

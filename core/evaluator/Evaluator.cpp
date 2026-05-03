@@ -10,6 +10,9 @@ Evaluator::Evaluator()
 {
     constants["pi"] = M_PI;
     constants["e"] = M_E;
+
+    constants["tau"] = 2 * M_PI;
+    constants["phi"] = (1 + std::sqrt(5)) / 2;
 }
 
 Value Evaluator::evaluate(ASTNode *node)

@@ -1,14 +1,13 @@
 #include <iostream>
-#include "lexer/Lexer.h"
-#include "parser/Parser.h"
-#include "utility/Utility.h"
-#include "utility/Printer.h"
-#include "evaluator/Evaluator.h"
+#include "../../core/calculator/Calculator.h"
+#include "../../core/utility/Utility.h"
+#include "../../core/utility/Printer.h"
+
 
 int main()
 {
     std::string input;
-    Evaluator evaluator;
+    Calculator calc;
 
     while (true)
     {
@@ -20,21 +19,21 @@ int main()
 
         if (input == "deg")
         {
-            evaluator.setAngleMode(AngleMode::DEG);
+            calc.setAngleMode(AngleMode::DEG);
             std::cout << "Switched to DEG\n";
             continue;
         }
 
         if (input == "rad")
         {
-            evaluator.setAngleMode(AngleMode::RAD);
+            calc.setAngleMode(AngleMode::RAD);
             std::cout << "Switched to RAD\n";
             continue;
         }
 
         if (input == "mode")
         {
-            if (evaluator.getAngleMode() == AngleMode::DEG)
+            if (calc.getAngleMode() == AngleMode::DEG)
                 std::cout << "= DEG\n";
             else
                 std::cout << "= RAD\n";
@@ -43,13 +42,7 @@ int main()
 
         try
         {
-            Lexer lexer(input);
-            std::vector<Token> tokens = lexer.tokenise();
-
-            Parser parser(tokens);
-            std::unique_ptr<ASTNode> node = parser.parse();
-
-            Value result = evaluator.evaluate(node.get());
+            Value result = calc.evaluate(input);
 
             Printer::printValue(result);
         }

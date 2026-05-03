@@ -5,11 +5,16 @@ project(ScientificCalculator)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Automatically grab all .cpp files
-file(GLOB_RECURSE SOURCES "src/*.cpp")
+add_library(core
+    core/lexer/Lexer.cpp
+    core/parser/Parser.cpp
+    core/evaluator/Evaluator.cpp
+    core/calculator/Calculator.cpp
+    core/types/Matrix.cpp
+    core/utility/Printer.cpp
+    core/utility/Utility.cpp
+)
 
-# Create executable
-add_executable(scientific_calc ${SOURCES})
+add_executable(cli apps/cli/main.cpp)
+target_link_libraries(cli core)
 
-# Include headers
-target_include_directories(scientific_calc PRIVATE src)

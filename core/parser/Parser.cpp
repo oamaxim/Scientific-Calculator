@@ -19,16 +19,6 @@ Token Parser::get()
     return tokens.at(pos++);
 }
 
-// bool Parser::match(TokenType type)
-// {
-//     if (peek().type == type)
-//     {
-//         get();
-//         return true;
-//     }
-//     return false;
-// }
-
 std::unique_ptr<ASTNode> Parser::expression()
 {
     auto left = term();
