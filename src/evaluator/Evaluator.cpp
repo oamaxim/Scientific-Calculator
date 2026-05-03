@@ -189,7 +189,7 @@ Value Evaluator::evaluate(ASTNode *node)
             auto &args = func->args;
             if (args.size() < 2)
             {
-                throw CalcError("Matrix requires rows and columns", 0);
+                throw std::runtime_error("Matrix requires rows and columns");
             }
 
             int r = (int)asNumber(evaluate(args[0].get()));
@@ -201,7 +201,7 @@ Value Evaluator::evaluate(ASTNode *node)
 
             if ((int)func->args.size() - 2 != expected)
             {
-                throw CalcError("Incorrect number of matrix values", 0);
+                throw std::runtime_error("Incorrect number of matrix values");
             }
 
             for (int i = 0; i < expected; i++)
@@ -216,64 +216,28 @@ Value Evaluator::evaluate(ASTNode *node)
         {
             if (func->args.size() != 1)
             {
-                throw CalcError("det() expects 1 matrix argument", 0);
+                throw std::runtime_error("det() expects 1 matrix argument");
             }
 
+            Matrix M = asMatrix(evaluate(func->args[0].get()));
+
+            return Matrix::determinant(M);
+        }
+
+        if (func->name == "transpose")
+        {
+            if (func->args.size() != 1)
+            {
+                throw std::runtime_error("transpose() expects 1 matrix argument");
+            }
+            Matrix M = asMatrix(evaluate(func->args[0].get()));
+            return Matrix::transpose(M);
+        }
+
+        if (func->name == "inv")
+        {
             Matrix m = asMatrix(evaluate(func->args[0].get()));
-
-            if (m.rows != m.cols)
-            {
-                throw CalcError("Matrix must be square", 0);
-            }
-
-            int n = m.rows;
-            std::vector<double> a = m.data;
-
-            double det = 1;
-
-            for (int col = 0; col < n; col++)
-            {
-                int pivot = -1;
-
-                for (int row = col; row < n; row++)
-                {
-                    if (std::abs(a[row * n + col]) > 1e-12)
-                    {
-                        pivot = row;
-                        break;
-                    }
-                }
-
-                if (pivot < 0)
-                {
-                    return 0.0;
-                }
-                if (pivot != col)
-                {
-                    for (int k = 0; k < n; k++)
-                    {
-                        std::swap(a[pivot * n + k], a[col * n + k]);
-                    }
-
-                    det = -det;
-                }
-
-                det *= a[col * n + col];
-
-                double piv = a[col * n + col];
-
-                for (int row = col + 1; row < n; row++)
-                {
-                    double f = a[row * n + col] / piv;
-
-                    for (int k = col; k < n; k++)
-                    {
-                        a[row * n + k] -= f * a[col * n + k];
-                    }
-                }
-            }
-
-            return det;
+            return Matrix::inverse(m);
         }
 
         // Others

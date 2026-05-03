@@ -19,4 +19,8 @@ public:
     static Matrix scalarMultiply(const Matrix &M, double s);
     static Matrix identity(int n);
     static Matrix power(Matrix base, int exp);
+
+    static double Matrix::determinant(const Matrix& M);
+    static Matrix transpose(const Matrix& M);
+    static Matrix inverse(const Matrix& M);
 };
