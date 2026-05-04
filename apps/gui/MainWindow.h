@@ -5,6 +5,7 @@
 #include <QTextEdit>
 #include <QPushButton>
 #include <QListWidget>
+#include <QLabel>
 
 #include "calculator/Calculator.h"
 
@@ -23,6 +24,12 @@ private:
     QTextEdit *outputBox;
     QPushButton *evalButton;
     QListWidget *historyList;
+    QLabel *modeLabel;
 
     Calculator calc;
+
+    bool shiftMode = false;
+    
+
+    void handleButton(const QString &text);
 };
