@@ -1,7 +1,7 @@
 #pragma once
-#include "../parser/AST.h"
-#include "../types/Matrix.h"
-#include "../types/Value.h"
+#include "parser/AST.h"
+#include "types/Matrix.h"
+#include "types/Value.h"
 #include <unordered_map>
 #include <string>
 

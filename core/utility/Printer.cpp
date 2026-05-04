@@ -27,7 +27,7 @@ void Printer::printMatrix(const Matrix &m)
     {
         for (int j = 0; j < m.cols; j++)
         {
-            
+
             str[i][j] = formatDouble(m.at(i, j));
         }
     }
@@ -51,16 +51,21 @@ void Printer::printMatrix(const Matrix &m)
         std::cout << "\n";
     }
 }
-void Printer::printCalcError(const std::string &input, const CalcError &e)
+
+std::string Printer::formatCalcError(const std::string& input, const CalcError& e)
 {
-    std::cout << input << std::endl;
-    std::cout << std::string(e.pos, ' ') << "^" << std::endl;
-    std::cout << "Error: " << e.what() << std::endl;
+    std::ostringstream oss;
+
+    oss << input << "\n";
+    oss << std::string(e.pos, ' ') << "^\n";
+    oss << "Error: " << e.what();
+
+    return oss.str();
 }
 
-void Printer::printRuntimeError(const std::runtime_error &e)
+std::string Printer::formatRuntimeError(const std::exception& e)
 {
-    std::cout << "Error: " << e.what() << std::endl;
+    return std::string("Error: ") + e.what();
 }
 
 std::string Printer::formatDouble(double v)
@@ -83,4 +88,39 @@ std::string Printer::formatDouble(double v)
     }
 
     return s;
+}
+
+std::string Printer::toString(const Value& v)
+{
+    if (std::holds_alternative<double>(v))
+    {
+        std::ostringstream oss;
+        oss << std::get<double>(v);
+        return oss.str();
+    }
+
+    if (std::holds_alternative<Matrix>(v))
+    {
+        return matrixToString(std::get<Matrix>(v));
+    }
+
+    return "Unknown value";
+}
+
+std::string Printer::matrixToString(const Matrix& m)
+{
+    std::ostringstream oss;
+
+    oss << "Matrix (" << m.rows << "x" << m.cols << "):\n";
+
+    for (int i = 0; i < m.rows; i++)
+    {
+        for (int j = 0; j < m.cols; j++)
+        {
+            oss << m.at(i, j) << " ";
+        }
+        oss << "\n";
+    }
+
+    return oss.str();
 }

@@ -1,6 +1,6 @@
 #include "Calculator.h"
-#include "../lexer/Lexer.h"
-#include "../parser/Parser.h"
+#include "lexer/Lexer.h"
+#include "parser/Parser.h"
 
 Value Calculator::evaluate(const std::string& input)
 {

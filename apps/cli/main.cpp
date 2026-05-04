@@ -48,11 +48,11 @@ int main()
         }
         catch (const CalcError &e)
         {
-            Printer::printCalcError(input, e);
+            std::cout << Printer::formatCalcError(input, e);
         }
         catch (const std::runtime_error &e)
         {
-            Printer::printRuntimeError(e);
+            std::cout << Printer::formatRuntimeError(e);
         }
     }
 

@@ -1,7 +1,7 @@
 #include "Evaluator.h"
-#include "../parser/AST.h"
-#include "../types/Matrix.h"
-#include "../utility/Utility.h"
+#include "parser/AST.h"
+#include "types/Matrix.h"
+#include "utility/Utility.h"
 #include <stdexcept>
 #include <cmath>
 #include <vector>

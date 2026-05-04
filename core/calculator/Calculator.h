@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
-#include "../types/Value.h"
-#include "../evaluator/Evaluator.h"
+#include "types/Value.h"
+#include "evaluator/Evaluator.h"
 
 class Calculator
 {

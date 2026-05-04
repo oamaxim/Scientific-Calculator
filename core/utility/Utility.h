@@ -1,6 +1,6 @@
 #pragma once
-#include "../types/Token.h"
-#include "../types/Matrix.h"
+#include "types/Token.h"
+#include "types/Matrix.h"
 #include <stdexcept>
 #include <string>
 
