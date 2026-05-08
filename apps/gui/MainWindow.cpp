@@ -80,7 +80,7 @@ MainWindow::MainWindow(QWidget *parent)
     createButton("SHIFT", "", 0, 0, ButtonType::Control, softMenu);
     createButton("ANGLE", "VAR/CON", 0, 1, ButtonType::Control, softMenu);
 
-    createButton("mat", "", 0, 3, ButtonType::Function, softMenu);
+    createButton("mat", "identity", 0, 3, ButtonType::Function, softMenu);
     createButton("det", "", 0, 4, ButtonType::Function, softMenu);
     createButton("inv", "transpose", 0, 5, ButtonType::Function, softMenu);
 

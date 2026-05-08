@@ -250,6 +250,9 @@ Value Evaluator::evaluate(ASTNode *node)
             return Matrix::inverse(m);
         }
 
+        if (func->name == "identity")
+            return Matrix::identity(values[0]);
+
         // Others
         if (func->name == "sqrt")
         {
