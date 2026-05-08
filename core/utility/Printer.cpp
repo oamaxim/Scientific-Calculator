@@ -19,15 +19,14 @@ void Printer::printValue(const Value &v)
 
 void Printer::printMatrix(const Matrix &m)
 {
-    std::cout << "Matrix (" << m.rows << "x" << m.cols << "):\n";
-
-    std::vector<std::vector<std::string>> str(m.rows, std::vector<std::string>(m.cols));
+    std::vector<std::vector<std::string>> str(
+        m.rows,
+        std::vector<std::string>(m.cols));
 
     for (int i = 0; i < m.rows; i++)
     {
         for (int j = 0; j < m.cols; j++)
         {
-
             str[i][j] = formatDouble(m.at(i, j));
         }
     }
@@ -38,21 +37,46 @@ void Printer::printMatrix(const Matrix &m)
     {
         for (int i = 0; i < m.rows; i++)
         {
-            colWidth[j] = std::max(colWidth[j], str[i][j].length());
+            colWidth[j] =
+                std::max(colWidth[j],
+                         str[i][j].length());
         }
     }
 
     for (int i = 0; i < m.rows; i++)
     {
+        // Left border
+        if (i == 0)
+            std::cout << "⎡ ";
+        else if (i == m.rows - 1)
+            std::cout << "⎣ ";
+        else
+            std::cout << "⎢ ";
+
+        // Elements
         for (int j = 0; j < m.cols; j++)
         {
-            std::cout << std::setw(colWidth[j]) << str[i][j] << " ";
+            std::cout
+                << std::setw(colWidth[j])
+                << str[i][j];
+
+            if (j < m.cols - 1)
+                std::cout << "  ";
         }
-        std::cout << "\n";
+
+        // Right border
+        if (i == 0)
+            std::cout << " ⎤";
+        else if (i == m.rows - 1)
+            std::cout << " ⎦";
+        else
+            std::cout << " ⎥";
+
+        std::cout << '\n';
     }
 }
 
-std::string Printer::formatCalcError(const std::string& input, const CalcError& e)
+std::string Printer::formatCalcError(const std::string &input, const CalcError &e)
 {
     std::ostringstream oss;
 
@@ -63,7 +87,7 @@ std::string Printer::formatCalcError(const std::string& input, const CalcError& 
     return oss.str();
 }
 
-std::string Printer::formatRuntimeError(const std::exception& e)
+std::string Printer::formatRuntimeError(const std::exception &e)
 {
     return std::string("Error: ") + e.what();
 }
@@ -90,7 +114,7 @@ std::string Printer::formatDouble(double v)
     return s;
 }
 
-std::string Printer::toString(const Value& v)
+std::string Printer::toString(const Value &v)
 {
     if (std::holds_alternative<double>(v))
     {
@@ -107,19 +131,67 @@ std::string Printer::toString(const Value& v)
     return "Unknown value";
 }
 
-std::string Printer::matrixToString(const Matrix& m)
+std::string Printer::matrixToString(const Matrix &m)
 {
     std::ostringstream oss;
 
-    oss << "Matrix (" << m.rows << "x" << m.cols << "):\n";
+    std::vector<std::vector<std::string>> str(
+        m.rows,
+        std::vector<std::string>(m.cols));
 
     for (int i = 0; i < m.rows; i++)
     {
         for (int j = 0; j < m.cols; j++)
         {
-            oss << m.at(i, j) << " ";
+            str[i][j] = formatDouble(m.at(i, j));
         }
-        oss << "\n";
+    }
+
+    std::vector<size_t> colWidth(m.cols, 0);
+
+    for (int j = 0; j < m.cols; j++)
+    {
+        for (int i = 0; i < m.rows; i++)
+        {
+            colWidth[j] =
+                std::max(colWidth[j],
+                         str[i][j].length());
+        }
+    }
+
+    oss << "\n";
+
+    for (int i = 0; i < m.rows; i++)
+    {
+        // Left border
+        if (i == 0)
+            oss << "⎡ ";
+        else if (i == m.rows - 1)
+            oss << "⎣ ";
+        else
+            oss << "⎢ ";
+
+        // Matrix elements
+        for (int j = 0; j < m.cols; j++)
+        {
+            oss << std::right
+                << std::setw(static_cast<int>(colWidth[j]))
+                << str[i][j];
+
+            if (j < m.cols - 1)
+                oss << "   ";
+        }
+
+        // Right border
+        if (i == 0)
+            oss << " ⎤";
+        else if (i == m.rows - 1)
+            oss << " ⎦";
+        else
+            oss << " ⎥";
+
+        if (i < m.rows - 1)
+            oss << '\n';
     }
 
     return oss.str();

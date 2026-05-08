@@ -12,4 +12,6 @@ public:
     Value evaluate(const std::string& input);
     void setAngleMode(AngleMode mode);
     AngleMode getAngleMode() const;
+    std::string getSymbolTable();
+
 };

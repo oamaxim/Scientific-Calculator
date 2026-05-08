@@ -15,7 +15,7 @@ class Evaluator
 {
 private:
     std::unordered_map<std::string, Value> variables;
-    std::unordered_map<std::string, double> constants;
+    std::unordered_map<std::string, Value> constants;
 
     double asNumber(const Value &v);
     const Matrix &asMatrix(const Value &v);
@@ -30,5 +30,6 @@ public:
     void setAngleMode(AngleMode mode);
 
     AngleMode getAngleMode() const;
+    void setANS(Value v);
+    std::string symbolTableToString() const;
 };
-

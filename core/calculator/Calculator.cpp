@@ -10,7 +10,9 @@ Value Calculator::evaluate(const std::string& input)
     Parser parser(tokens);
     auto ast = parser.parse();
 
-    return evaluator.evaluate(ast.get());
+    Value answer = evaluator.evaluate(ast.get());
+    evaluator.setANS(answer);
+    return answer;
 }
 
 void Calculator::setAngleMode(AngleMode mode)
@@ -21,4 +23,9 @@ void Calculator::setAngleMode(AngleMode mode)
 AngleMode Calculator::getAngleMode() const
 {
     return evaluator.getAngleMode();
+}
+
+std::string Calculator::getSymbolTable()
+{
+    return evaluator.symbolTableToString();
 }

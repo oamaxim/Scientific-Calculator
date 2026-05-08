@@ -5,14 +5,18 @@
 #include <stdexcept>
 #include <cmath>
 #include <vector>
+#include <sstream>
+#include <utility/Printer.h>
 
 Evaluator::Evaluator()
 {
     constants["pi"] = M_PI;
+    constants["π"] = M_PI;
     constants["e"] = M_E;
 
     constants["tau"] = 2 * M_PI;
     constants["phi"] = (1 + std::sqrt(5)) / 2;
+    constants["ans"] = 0.0;
 }
 
 Value Evaluator::evaluate(ASTNode *node)
@@ -157,19 +161,19 @@ Value Evaluator::evaluate(ASTNode *node)
             return 1 / std::tan(toRadians(values[0], angleMode));
 
         // Inverse Trig
-        if (func->name == "arcsin")
+        if (func->name == "asin")
             return fromRadians(std::asin(values[0]), angleMode);
-        if (func->name == "arccos")
+        if (func->name == "aos")
             return fromRadians(std::acos(values[0]), angleMode);
-        if (func->name == "arctan")
+        if (func->name == "atan")
             return fromRadians(std::atan(values[0]), angleMode);
 
         // Inverse Reciprocal Trig
-        if (func->name == "arccsc")
+        if (func->name == "acsc")
             return fromRadians(std::asin(1 / values[0]), angleMode);
-        if (func->name == "arcsec")
+        if (func->name == "asec")
             return fromRadians(std::acos(1 / values[0]), angleMode);
-        if (func->name == "arccot")
+        if (func->name == "acot")
             return fromRadians(std::atan(1 / values[0]), angleMode);
 
         // Hyperbolic
@@ -235,6 +239,7 @@ Value Evaluator::evaluate(ASTNode *node)
             {
                 throw std::runtime_error("transpose() expects 1 matrix argument");
             }
+            
             Matrix M = asMatrix(evaluate(func->args[0].get()));
             return Matrix::transpose(M);
         }
@@ -247,10 +252,71 @@ Value Evaluator::evaluate(ASTNode *node)
 
         // Others
         if (func->name == "sqrt")
+        {
+            if (values[0] <= 0)
+            {
+                throw std::runtime_error("Root defined for x>0");
+            }
+
             return std::sqrt(values[0]);
+        }
+
+        if (func->name == "root")
+        {
+            if (func->args.size() != 2)
+            {
+                throw std::runtime_error("root() expects 2 arguments, the value and base");
+            }
+
+            if (values[0] <= 0)
+            {
+                throw std::runtime_error("Root defined for x>0");
+            }
+
+            if (values[1] <= 0)
+            {
+                throw std::runtime_error("Base cannot be <=0 ");
+            }
+
+            return std::pow(values[0], 1 / values[1]);
+        }
 
         if (func->name == "abs")
             return std::abs(values[0]);
+
+        if (func->name == "log")
+        {
+            if (func->args.size() != 2)
+            {
+                throw std::runtime_error("log() expects 2 arguments, the base and value");
+            }
+
+            if (values[1] <= 0)
+            {
+                throw std::runtime_error("Logarithm defined for x>0");
+            }
+
+            return logbase(values[1], values[0]);
+        }
+        if (func->name == "ln")
+        {
+            if (values[0] <= 0)
+            {
+                throw std::runtime_error("Logarithm defined for x>0");
+            }
+
+            return std::log(values[0]);
+        }
+
+        if (func->name == "log10")
+        {
+            if (values[0] <= 0)
+            {
+                throw std::runtime_error("Logarithm defined for x>0");
+            }
+
+            return std::log10(values[0]);
+        }
 
         throw std::runtime_error("Unknown function '" + func->name + "'");
     }
@@ -286,7 +352,6 @@ AngleMode Evaluator::getAngleMode() const
     return angleMode;
 }
 
-
 double Evaluator::toRadians(double x, AngleMode mode)
 {
     if (mode == AngleMode::DEG)
@@ -299,4 +364,28 @@ double Evaluator::fromRadians(double x, AngleMode mode)
     if (mode == AngleMode::DEG)
         return x * 180.0 / M_PI;
     return x;
+}
+
+void Evaluator::setANS(Value v)
+{
+    constants["ans"] = v;
+}
+
+std::string Evaluator::symbolTableToString() const
+{
+    std::ostringstream oss;
+
+    oss << "Constants:\n";
+    for (const auto& [name, value] : constants)
+    {
+        oss << name << " = " << Printer::toString(value) << "\n";
+    }
+
+    oss << "\nVariables:\n";
+    for (const auto& [name, value] : variables)
+    {
+        oss << name << " = " << Printer::toString(value) << "\n";
+    }
+
+    return oss.str();
 }

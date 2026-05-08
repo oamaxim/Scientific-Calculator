@@ -6,7 +6,10 @@ Parser::Parser(const std::vector<Token> &tokens) : tokens(tokens), pos(0) {}
 
 Token Parser::peek()
 {
-    return tokens.at(pos);
+    if (pos >= tokens.size())
+        return Token{TokenType::END};
+
+    return tokens[pos];
 }
 
 Token &Parser::prev()
@@ -16,7 +19,14 @@ Token &Parser::prev()
 
 Token Parser::get()
 {
-    return tokens.at(pos++);
+    if (pos >= tokens.size())
+    {
+        throw CalcError(
+            "Unexpected end of input",
+            tokens.back().pos);
+    }
+
+    return tokens[pos++];
 }
 
 std::unique_ptr<ASTNode> Parser::expression()
@@ -101,10 +111,11 @@ std::unique_ptr<ASTNode> Parser::unary()
             std::make_unique<NumberNode>(0),
             unary());
     }
-    
-    if (peek().type == TokenType::PLUS){
+
+    if (peek().type == TokenType::PLUS)
+    {
         get();
-        unary();
+        return unary();
     }
 
     return factor();
@@ -125,17 +136,45 @@ std::unique_ptr<ASTNode> Parser::factor()
             get();
 
             std::vector<std::unique_ptr<ASTNode>> args;
+
+            if (peek().type == TokenType::END)
+            {
+                throw CalcError(
+                    "Expected expression",
+                    peek().pos);
+            }
+
             if (peek().type != TokenType::RPAREN)
             {
                 args.push_back(expression());
+
                 while (peek().type == TokenType::COMMA)
                 {
                     get();
+
+                    if (peek().type == TokenType::RPAREN)
+                    {
+                        throw CalcError(
+                            "Expected expression after ','",
+                            peek().pos);
+                    }
+
                     args.push_back(expression());
                 }
             }
+
+            if (peek().type != TokenType::RPAREN)
+            {
+                throw CalcError(
+                    "Expected ')'",
+                    peek().pos);
+            }
+
             get();
-            return std::make_unique<FunctionNode>(t.name, std::move(args));
+
+            return std::make_unique<FunctionNode>(
+                t.name,
+                std::move(args));
         }
 
         // Variable
@@ -156,7 +195,8 @@ std::unique_ptr<ASTNode> Parser::factor()
 
 std::unique_ptr<ASTNode> Parser::parse()
 {
-    if (peek().type == TokenType::IDENT &&
+    if (pos + 1 < tokens.size() &&
+        peek().type == TokenType::IDENT &&
         tokens[pos + 1].type == TokenType::ASSIGN)
     {
         std::string name = get().name;

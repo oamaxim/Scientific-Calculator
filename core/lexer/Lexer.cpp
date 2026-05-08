@@ -20,20 +20,41 @@ std::vector<Token> Lexer::tokenise()
             continue;
         }
 
-        if (isdigit(current))
+        if (isdigit(current) || current == '.')
         {
             std::string num;
+            bool hasDot = false;
 
-            while (pos < input.size() && isdigit(input[pos]))
+            while (pos < input.size())
             {
-                num += input[pos];
+                char c = input[pos];
+
+                if (isdigit(c))
+                {
+                    num += c;
+                }
+                else if (c == '.' && !hasDot)
+                {
+                    hasDot = true;
+                    num += c;
+                }
+                else
+                {
+                    break;
+                }
+
                 pos++;
+            }
+
+            if (num == ".")
+            {
+                throw CalcError("Invalid number format", pos);
             }
 
             tokens.push_back({TokenType::NUMBER, std::stod(num), "", (int)pos});
 
             continue;
-        };
+        }
 
         if (isalpha(current))
         {

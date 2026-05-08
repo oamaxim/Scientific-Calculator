@@ -1,6 +1,7 @@
 #include "Utility.h"
 #include <iostream>
 #include <iomanip>
+#include <cmath>
 std::string tokenToString(const Token &t)
 {
     switch (t.type)
@@ -40,4 +41,9 @@ std::string trim(const std::string &s)
     if (start == std::string::npos)
         return "";
     return s.substr(start, end - start + 1);
+}
+
+double logbase(double a, double base)
+{
+   return log(a) / log(base);
 }

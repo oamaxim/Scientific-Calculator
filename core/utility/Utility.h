@@ -15,3 +15,4 @@ public:
 
 std::string tokenToString(const Token &t);
 std::string trim(const std::string& s);
+double logbase(double a, double base);
