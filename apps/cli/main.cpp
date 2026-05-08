@@ -2,10 +2,13 @@
 #include "../../core/calculator/Calculator.h"
 #include "../../core/utility/Utility.h"
 #include "../../core/utility/Printer.h"
-
+#include <windows.h>
 
 int main()
 {
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+
     std::string input;
     Calculator calc;
 
@@ -20,23 +23,29 @@ int main()
         if (input == "deg")
         {
             calc.setAngleMode(AngleMode::DEG);
-            std::cout << "Switched to DEG\n";
+            std::cout << "Switched to DEG" << std::endl;
             continue;
         }
 
         if (input == "rad")
         {
             calc.setAngleMode(AngleMode::RAD);
-            std::cout << "Switched to RAD\n";
+            std::cout << "Switched to RAD" << std::endl;
             continue;
         }
 
         if (input == "mode")
         {
             if (calc.getAngleMode() == AngleMode::DEG)
-                std::cout << "= DEG\n";
+                std::cout << "= DEG" << std::endl;
             else
-                std::cout << "= RAD\n";
+                std::cout << "= RAD" << std::endl;
+            continue;
+        }
+
+        if (input == "var/con")
+        {
+            std::cout << calc.getSymbolTable() << std::endl;
             continue;
         }
 
@@ -48,11 +57,11 @@ int main()
         }
         catch (const CalcError &e)
         {
-            std::cout << Printer::formatCalcError(input, e);
+            std::cout << Printer::formatCalcError(input, e) << std::endl;
         }
         catch (const std::runtime_error &e)
         {
-            std::cout << Printer::formatRuntimeError(e);
+            std::cout << Printer::formatRuntimeError(e) << std::endl;
         }
     }
 
