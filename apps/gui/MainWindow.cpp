@@ -87,7 +87,7 @@ MainWindow::MainWindow(QWidget *parent)
     createButton("sin", "asin", 1, 0, ButtonType::Function, softMenu);
     createButton("cos", "acos", 1, 1, ButtonType::Function, softMenu);
     createButton("tan", "atan", 1, 2, ButtonType::Function, softMenu);
-    createButton("cosec", "acosec", 1, 3, ButtonType::Function, softMenu);
+    createButton("csc", "acsc", 1, 3, ButtonType::Function, softMenu);
     createButton("sec", "asec", 1, 4, ButtonType::Function, softMenu);
     createButton("cot", "acot", 1, 5, ButtonType::Function, softMenu);
 

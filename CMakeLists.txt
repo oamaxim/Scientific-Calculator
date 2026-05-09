@@ -22,6 +22,8 @@ add_library(core STATIC
     core/evaluator/Evaluator.cpp
     core/calculator/Calculator.cpp
     core/types/Matrix.cpp
+    core/types/Value.cpp
+    core/types/Function.cpp
     core/utility/Printer.cpp
     core/utility/Utility.cpp
 )
@@ -35,11 +37,15 @@ add_executable(cli
 
 target_link_libraries(cli PRIVATE core)
 
+
+
 # ---- GUI APP ----
 add_executable(gui
     apps/gui/main.cpp
     apps/gui/MainWindow.cpp
 )
+
+set_target_properties(gui PROPERTIES WIN32_EXECUTABLE TRUE)
 
 target_link_libraries(gui
     PRIVATE core

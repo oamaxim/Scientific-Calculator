@@ -17,7 +17,7 @@ public:
     static Matrix subtract(const Matrix &A, const Matrix &B);
     static Matrix multiply(const Matrix &A, const Matrix &B);
     static Matrix divide(const Matrix &A, const Matrix &B);
-    static Matrix scalarMultiply(const Matrix &M, double s);
+    static Matrix scalarMultiply(double s,const Matrix &M);
     static Matrix identity(int n);
     static Matrix power(Matrix base, int exp);
 

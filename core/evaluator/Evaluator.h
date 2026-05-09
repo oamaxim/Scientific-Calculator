@@ -2,8 +2,10 @@
 #include "parser/AST.h"
 #include "types/Matrix.h"
 #include "types/Value.h"
+#include <types/Function.h>
 #include <unordered_map>
 #include <string>
+
 
 enum class AngleMode
 {
@@ -16,6 +18,7 @@ class Evaluator
 private:
     std::unordered_map<std::string, Value> variables;
     std::unordered_map<std::string, Value> constants;
+    std::unordered_map<std::string, Function> functions;
 
     double asNumber(const Value &v);
     const Matrix &asMatrix(const Value &v);

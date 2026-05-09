@@ -66,7 +66,7 @@ Matrix Matrix::divide(const Matrix &A, const Matrix &B)
     return Matrix::multiply(A, Matrix::inverse(B));
 }
 
-Matrix Matrix::scalarMultiply(const Matrix &M, double s)
+Matrix Matrix::scalarMultiply(double s, const Matrix &M)
 {
     Matrix R(M.rows, M.cols);
 

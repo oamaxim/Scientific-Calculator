@@ -1,15 +1,18 @@
 #include "Evaluator.h"
 #include "parser/AST.h"
 #include "types/Matrix.h"
+#include "types/Value.h"
+#include "types/Function.h"
 #include "utility/Utility.h"
+#include <utility/Printer.h>
 #include <stdexcept>
 #include <cmath>
 #include <vector>
 #include <sstream>
-#include <utility/Printer.h>
 
 Evaluator::Evaluator()
 {
+    // Constants
     constants["pi"] = M_PI;
     constants["π"] = M_PI;
     constants["e"] = M_E;
@@ -17,7 +20,338 @@ Evaluator::Evaluator()
     constants["tau"] = 2 * M_PI;
     constants["phi"] = (1 + std::sqrt(5)) / 2;
     constants["ans"] = 0.0;
-}
+
+    // Functions
+
+    // Trig
+    functions["sin"] = [this](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "sin");
+
+        double x = ValueUtil::asNumber(args[0]);
+        return std::sin(toRadians(x, angleMode));
+    };
+
+    functions["cos"] = [this](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "cos");
+
+        double x = ValueUtil::asNumber(args[0]);
+        return std::cos(toRadians(x, angleMode));
+    };
+
+    functions["tan"] = [this](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "tan");
+
+        double x = toRadians(ValueUtil::asNumber(args[0]), angleMode);
+
+        FunctionUtil::expectPeriodic(
+            x,
+            (angleMode == AngleMode::DEG) ? 180.0 : M_PI,
+            "tan",
+            Validate::PeriodRule::OffsetMultipleOf,
+            (angleMode == AngleMode::DEG) ? 90.0 : M_PI_2,
+            1e-9);
+
+        return std::tan(x);
+    };
+
+    // Reciprocal Trig
+
+    functions["csc"] = [this](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "csc");
+
+        double x = toRadians(ValueUtil::asNumber(args[0]), angleMode);
+        FunctionUtil::expectPeriodic(
+            x,
+            (angleMode == AngleMode::DEG) ? 180.0 : M_PI,
+            "csc",
+            Validate::PeriodRule::MultipleOf,
+            0,
+            1e-9);
+
+        return 1 / std::sin(x);
+    };
+
+    functions["sec"] = [this](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "sec");
+
+        double x = toRadians(ValueUtil::asNumber(args[0]), angleMode);
+
+        FunctionUtil::expectPeriodic(
+            x,
+            (angleMode == AngleMode::DEG) ? 180.0 : M_PI,
+            "sec",
+            Validate::PeriodRule::OffsetMultipleOf,
+            (angleMode == AngleMode::DEG) ? 90.0 : M_PI_2,
+            1e-9);
+
+        return 1 / std::cos(x);
+    };
+
+    functions["cot"] = [this](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "cot");
+
+        double x = toRadians(ValueUtil::asNumber(args[0]), angleMode);
+
+        FunctionUtil::expectPeriodic(
+            x,
+            (angleMode == AngleMode::DEG) ? 180.0 : M_PI,
+            "cot",
+            Validate::PeriodRule::MultipleOf,
+            0,
+            1e-9);
+
+        return 1 / std::tan(x);
+    };
+
+    // Inverse Trig
+
+    functions["asin"] = [this](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "asin");
+
+        double x = ValueUtil::asNumber(args[0]);
+        FunctionUtil::validateRange(
+            x,
+            -1,
+            1,
+            Validate::Compare::LTE,
+            Validate::Compare::GTE,
+            "asin");
+
+        return fromRadians(std::asin(x), angleMode);
+    };
+
+    functions["acos"] = [this](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "acos");
+
+        double x = ValueUtil::asNumber(args[0]);
+        FunctionUtil::validateRange(
+            x,
+            -1,
+            1,
+            Validate::Compare::LTE,
+            Validate::Compare::GTE,
+            "acos");
+
+        return fromRadians(std::acos(x), angleMode);
+    };
+
+    functions["atan"] = [this](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "atan");
+
+        double x = ValueUtil::asNumber(args[0]);
+
+        return fromRadians(std::atan(x), angleMode);
+    };
+
+    // Inverse Reciprocal Trig
+
+    functions["acsc"] = [this](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "acsc");
+
+        double x = ValueUtil::asNumber(args[0]);
+
+        FunctionUtil::validateRange(x, 0, Validate::Compare::NEQ, "x");
+
+        return fromRadians(std::asin(1 / x), angleMode);
+    };
+
+    functions["asec"] = [this](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "asec");
+
+        double x = ValueUtil::asNumber(args[0]);
+
+        FunctionUtil::validateRange(x, 0, Validate::Compare::NEQ, "x");
+
+        return fromRadians(std::acos(1 / x), angleMode);
+    };
+
+    functions["acot"] = [this](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "acot");
+
+        double x = ValueUtil::asNumber(args[0]);
+
+        FunctionUtil::validateRange(x, 0, Validate::Compare::NEQ, "x");
+
+        return fromRadians(std::atan(1 / x), angleMode);
+    };
+
+    // Hyperbolic
+
+    functions["sinh"] = [this](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "sinh");
+
+        return std::sinh(ValueUtil::asNumber(args[0]));
+    };
+
+    functions["cosh"] = [this](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "cosh");
+
+        return std::cosh(ValueUtil::asNumber(args[0]));
+    };
+
+    functions["tanh"] = [this](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "tanh");
+
+        return std::tanh(ValueUtil::asNumber(args[0]));
+    };
+
+    // Inverse Hyperbolic
+
+    functions["asinh"] = [this](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "asinh");
+
+        return std::asinh(ValueUtil::asNumber(args[0]));
+    };
+
+    functions["acosh"] = [this](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "acosh");
+        return std::acosh(ValueUtil::asNumber(args[0]));
+    };
+
+    functions["atanh"] = [this](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "atanh");
+        return std::atanh(ValueUtil::asNumber(args[0]));
+    };
+
+    // Matrices
+
+    functions["mat"] = [](const std::vector<Value> &args)
+    {
+        if (args.size() < 2)
+        {
+            throw std::runtime_error("Matrix requires rows and columns");
+        }
+
+        int r = (int)ValueUtil::asNumber(args[0]);
+        int c = (int)ValueUtil::asNumber(args[1]);
+
+        Matrix m(r, c);
+
+        int expected = r * c;
+
+        if (args.size() - 2 != expected)
+        {
+            throw std::runtime_error("Incorrect number of matrix values");
+        }
+
+        for (int i = 0; i < expected; i++)
+        {
+            m.data[i] = ValueUtil::asNumber(args[i + 2]);
+        }
+
+        return m;
+    };
+
+    functions["det"] = [](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "det");
+
+        return Matrix::determinant(ValueUtil::asMatrix(args[0]));
+    };
+
+    functions["transpose"] = [](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "transpose");
+
+        return Matrix::transpose(ValueUtil::asMatrix(args[0]));
+    };
+
+    functions["inv"] = [](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "inv");
+
+        return Matrix::inverse(ValueUtil::asMatrix(args[0]));
+    };
+
+    functions["identity"] = [](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "identity");
+
+        return Matrix::identity(ValueUtil::asNumber(args[0]));
+    };
+
+    functions["sqrt"] = [](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "sqrt");
+
+        double x = ValueUtil::asNumber(args[0]);
+
+        FunctionUtil::validateRange(x, 0, Validate::Compare::LT, "Radicand");
+
+        return Value(std::sqrt(x));
+    };
+
+    functions["root"] = [](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 2, Validate::Args::Exact, "root");
+
+        double n = ValueUtil::asNumber(args[0]);
+        double x = ValueUtil::asNumber(args[1]);
+
+        FunctionUtil::validateRange(x, 0, Validate::Compare::LT, "Index");
+        FunctionUtil::validateRange(n, 0, Validate::Compare::LTE, "Radicand");
+
+        return std::pow(x, 1 / n);
+    };
+
+    functions["abs"] = [](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "abs");
+        return std::abs(ValueUtil::asNumber(args[0]));
+    };
+
+    functions["log"] = [](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 2, Validate::Args::Exact, "log");
+
+        double n = ValueUtil::asNumber(args[0]);
+        double x = ValueUtil::asNumber(args[1]);
+
+        FunctionUtil::validateRange(x, 0, Validate::Compare::GT, "Value");
+
+        return logbase(x, n);
+    };
+
+    functions["ln"] = [](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "ln");
+
+        double x = ValueUtil::asNumber(args[0]);
+
+        FunctionUtil::validateRange(x, 0, Validate::Compare::GT, "Value");
+
+        return std::log(x);
+    };
+
+    functions["log10"] = [](const std::vector<Value> &args)
+    {
+        FunctionUtil::validateArgs(args, 1, Validate::Args::Exact, "log10");
+
+        double x = ValueUtil::asNumber(args[0]);
+
+        FunctionUtil::validateRange(x, 0, Validate::Compare::GT, "Value");
+
+        return std::log10(x);
+    };
+};
 
 Value Evaluator::evaluate(ASTNode *node)
 {
@@ -63,286 +397,44 @@ Value Evaluator::evaluate(ASTNode *node)
         Value leftV = evaluate(bin->left.get());
         Value rightV = evaluate(bin->right.get());
 
-        // Both Numbers
-        if (std::holds_alternative<double>(leftV) &&
-            std::holds_alternative<double>(rightV))
+        switch (bin->op)
         {
-
-            double left = std::get<double>(leftV);
-            double right = std::get<double>(rightV);
-
-            switch (bin->op)
-            {
-            case '+':
-                return left + right;
-            case '-':
-                return left - right;
-            case '*':
-                return left * right;
-            case '/':
-                if (right == 0)
-                    throw std::runtime_error("Division by zero");
-                return left / right;
-            case '^':
-                return std::pow(left, right);
-            }
-        }
-
-        // Both Matrix
-        if (std::holds_alternative<Matrix>(leftV) &&
-            std::holds_alternative<Matrix>(rightV))
-        {
-
-            const Matrix &A = std::get<Matrix>(leftV);
-            const Matrix &B = std::get<Matrix>(rightV);
-
-            switch (bin->op)
-            {
-            case '+':
-                return Matrix::add(A, B);
-            case '-':
-                return Matrix::subtract(A, B);
-            case '*':
-                return Matrix::multiply(A, B);
-            case '/':
-                return Matrix::divide(A, B);
-            }
-        }
-
-        // Number and Matrix
-        if (std::holds_alternative<double>(leftV) &&
-            std::holds_alternative<Matrix>(rightV) &&
-            bin->op == '*')
-        {
-            double s = std::get<double>(leftV);
-            const Matrix &M = std::get<Matrix>(rightV);
-
-            return Matrix::scalarMultiply(M, s);
-        }
-
-        // Matrix and Number
-        if (std::holds_alternative<Matrix>(leftV) &&
-            std::holds_alternative<double>(rightV))
-        {
-            const Matrix &M = std::get<Matrix>(leftV);
-            double s = std::get<double>(rightV);
-
-            switch (bin->op)
-            {
-            case '*':
-                return Matrix::scalarMultiply(M, s);
-            case '^':
-                return Matrix::power(M, (int)s);
-            }
+        case '+':
+            return ValueUtil::add(leftV, rightV);
+        case '-':
+            return ValueUtil::subtract(leftV, rightV);
+        case '*':
+            return ValueUtil::multiply(leftV, rightV);
+        case '/':
+            return ValueUtil::divide(leftV, rightV);
+        case '^':
+            return ValueUtil::power(leftV, rightV);
         }
     }
 
     if (auto func = dynamic_cast<FunctionNode *>(node))
     {
-        std::vector<double> values;
+        std::vector<Value> args;
+
         for (auto &arg : func->args)
         {
-            values.push_back(asNumber(evaluate(arg.get())));
+            args.push_back(
+                evaluate(arg.get()));
         }
-        // Trig
-        if (func->name == "sin")
-            return std::sin(toRadians(values[0], angleMode));
-        if (func->name == "cos")
-            return std::cos(toRadians(values[0], angleMode));
-        if (func->name == "tan")
-            return std::tan(toRadians(values[0], angleMode));
 
-        // Reciprocal Trig
-        if (func->name == "cosec")
-            return 1 / std::sin(toRadians(values[0], angleMode));
-        if (func->name == "sec")
-            return 1 / std::cos(toRadians(values[0], angleMode));
-        if (func->name == "cot")
-            return 1 / std::tan(toRadians(values[0], angleMode));
+        auto it = functions.find(func->name);
 
-        // Inverse Trig
-        if (func->name == "asin")
-            return fromRadians(std::asin(values[0]), angleMode);
-        if (func->name == "aos")
-            return fromRadians(std::acos(values[0]), angleMode);
-        if (func->name == "atan")
-            return fromRadians(std::atan(values[0]), angleMode);
-
-        // Inverse Reciprocal Trig
-        if (func->name == "acsc")
-            return fromRadians(std::asin(1 / values[0]), angleMode);
-        if (func->name == "asec")
-            return fromRadians(std::acos(1 / values[0]), angleMode);
-        if (func->name == "acot")
-            return fromRadians(std::atan(1 / values[0]), angleMode);
-
-        // Hyperbolic
-        if (func->name == "sinh")
-            return std::sinh(values[0]);
-        if (func->name == "cosh")
-            return std::cosh(values[0]);
-        if (func->name == "tanh")
-            return std::tanh(values[0]);
-
-        // Inverse Hyperbolic
-        if (func->name == "arcsinh")
-            return std::asinh(values[0]);
-        if (func->name == "arccosh")
-            return std::acosh(values[0]);
-        if (func->name == "arctanh")
-            return std::atanh(values[0]);
-
-        // Matricies
-        if (func->name == "mat")
+        if (it == functions.end())
         {
-            auto &args = func->args;
-            if (args.size() < 2)
-            {
-                throw std::runtime_error("Matrix requires rows and columns");
-            }
-
-            int r = (int)asNumber(evaluate(args[0].get()));
-            int c = (int)asNumber(evaluate(args[1].get()));
-
-            Matrix m(r, c);
-
-            int expected = r * c;
-
-            if ((int)func->args.size() - 2 != expected)
-            {
-                throw std::runtime_error("Incorrect number of matrix values");
-            }
-
-            for (int i = 0; i < expected; i++)
-            {
-                m.data[i] = asNumber(evaluate(args[i + 2].get()));
-            }
-
-            return m;
+            throw std::runtime_error(
+                "Unknown function '" +
+                func->name + "'");
         }
 
-        if (func->name == "det")
-        {
-            if (func->args.size() != 1)
-            {
-                throw std::runtime_error("det() expects 1 matrix argument");
-            }
-
-            Matrix M = asMatrix(evaluate(func->args[0].get()));
-
-            return Matrix::determinant(M);
-        }
-
-        if (func->name == "transpose")
-        {
-            if (func->args.size() != 1)
-            {
-                throw std::runtime_error("transpose() expects 1 matrix argument");
-            }
-            
-            Matrix M = asMatrix(evaluate(func->args[0].get()));
-            return Matrix::transpose(M);
-        }
-
-        if (func->name == "inv")
-        {
-            Matrix m = asMatrix(evaluate(func->args[0].get()));
-            return Matrix::inverse(m);
-        }
-
-        if (func->name == "identity")
-            return Matrix::identity(values[0]);
-
-        // Others
-        if (func->name == "sqrt")
-        {
-            if (values[0] <= 0)
-            {
-                throw std::runtime_error("Root defined for x>0");
-            }
-
-            return std::sqrt(values[0]);
-        }
-
-        if (func->name == "root")
-        {
-            if (func->args.size() != 2)
-            {
-                throw std::runtime_error("root() expects 2 arguments, the value and base");
-            }
-
-            if (values[0] <= 0)
-            {
-                throw std::runtime_error("Root defined for x>0");
-            }
-
-            if (values[1] <= 0)
-            {
-                throw std::runtime_error("Base cannot be <=0 ");
-            }
-
-            return std::pow(values[0], 1 / values[1]);
-        }
-
-        if (func->name == "abs")
-            return std::abs(values[0]);
-
-        if (func->name == "log")
-        {
-            if (func->args.size() != 2)
-            {
-                throw std::runtime_error("log() expects 2 arguments, the base and value");
-            }
-
-            if (values[1] <= 0)
-            {
-                throw std::runtime_error("Logarithm defined for x>0");
-            }
-
-            return logbase(values[1], values[0]);
-        }
-        if (func->name == "ln")
-        {
-            if (values[0] <= 0)
-            {
-                throw std::runtime_error("Logarithm defined for x>0");
-            }
-
-            return std::log(values[0]);
-        }
-
-        if (func->name == "log10")
-        {
-            if (values[0] <= 0)
-            {
-                throw std::runtime_error("Logarithm defined for x>0");
-            }
-
-            return std::log10(values[0]);
-        }
-
-        throw std::runtime_error("Unknown function '" + func->name + "'");
+        return it->second(args);
     }
 
     throw std::runtime_error("Unknown AST node");
-}
-
-double Evaluator::asNumber(const Value &v)
-{
-    if (!std::holds_alternative<double>(v))
-    {
-        throw std::runtime_error("Expected number");
-    }
-    return std::get<double>(v);
-}
-
-const Matrix &Evaluator::asMatrix(const Value &v)
-{
-    if (!std::holds_alternative<Matrix>(v))
-    {
-        throw std::runtime_error("Expected matrix");
-    }
-    return std::get<Matrix>(v);
 }
 
 void Evaluator::setAngleMode(AngleMode mode)
@@ -379,13 +471,13 @@ std::string Evaluator::symbolTableToString() const
     std::ostringstream oss;
 
     oss << "Constants:\n";
-    for (const auto& [name, value] : constants)
+    for (const auto &[name, value] : constants)
     {
         oss << name << " = " << Printer::toString(value) << "\n";
     }
 
     oss << "\nVariables:\n";
-    for (const auto& [name, value] : variables)
+    for (const auto &[name, value] : variables)
     {
         oss << name << " = " << Printer::toString(value) << "\n";
     }
