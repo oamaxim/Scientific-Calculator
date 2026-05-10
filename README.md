@@ -86,7 +86,7 @@ The calculator is built in 4 main layers:
 ### Build Steps
 
 ```bash
-git clone https://github.com/maxim-oa/Scientific-Calculator.git
+git clone https://github.com/oamaxim/Scientific-Calculator.git
 cd Scientific-Calculator
 mkdir build
 cd build
