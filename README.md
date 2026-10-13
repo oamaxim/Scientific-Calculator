@@ -4,6 +4,12 @@ A scientific calculator built in C++ using Qt.
 It supports expressions, functions, matrices, variables, and constants, with a custom-built lexer, parser, and evaluator.
 
 This project demonstrates compiler-style design (tokenisation → parsing → AST → evaluation), GUI development with Qt, and advanced expression handling.
+|Blank    |Matrix Demo     |Function Demo     |
+| --- | --- | --- |
+|  ![](screenshots/Calculator.png)   |  ![Calculator Matrix](screenshots/Demo1.png)   |  ![Calculator Function](screenshots/Demo2.png)   |
+
+
+
 
 ---
 
